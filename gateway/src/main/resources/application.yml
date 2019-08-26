@@ -1,0 +1,16 @@
+spring:
+  cloud:
+    gateway:
+      routes:
+      - id: test
+        uri: "http://httpbin.org:80"
+        predicates:
+        - Path=/get
+      - id: passwordmanager
+        uri: "http://localhost:8083"
+        predicates:
+        - Path=/passwordmanager/**
+      - id: passwordservice
+        uri: "http://localhost:8084"
+        predicates:
+        - Path=/passwordservice/**
