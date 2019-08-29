@@ -6,11 +6,11 @@ spring:
         uri: "http://httpbin.org:80"
         predicates:
         - Path=/get
-      - id: passwordmanager
+      - id: phonebookmanager
         uri: "http://localhost:8083"
         predicates:
-        - Path=/passwordmanager/**
-      - id: passwordservice
+        - Path=/phonebookmanager/**
+      - id: phoneservice
         uri: "http://localhost:8084"
         predicates:
-        - Path=/passwordservice/**
+        - Path=/phoneservice/**
