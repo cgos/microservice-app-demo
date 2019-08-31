@@ -14,13 +14,15 @@ This simple project contains 4 main components:
 | [embedded database](./phonebookmanager)   | H2            | Stores the items.                                    |
 
 
+# Installation
 First you need to git clone this repository
 
-## Option 1: Run locally
+* Install Locust: https://docs.locust.io/en/latest/installation.html#
+
+# Option 1: Run locally
 
 
 
-start slow running test
 * Add micrometer dependency (sur 2/3 projets)
 * Add: management.endpoints.web.exposure.include=* (sur 1/3 projet)
 * Show: http://localhost:8083/actuator/prometheus
@@ -33,3 +35,8 @@ start slow running test
 * http://localhost:3000
 * import from grafana.com https://grafana.com/grafana/dashboards/4701
 * build a dashboard with http_server_requests_seconds_count
+
+
+## Start locust
+* locust -f ./locustfile.py --no-web -c 4 -r 1
+* http://localhost:8089/
