@@ -35,14 +35,15 @@ def edit_user(l):
     phone = randomString(7)
     description = randomString(15)
     data = {'name': name , 'phone': phone, 'description' : description}
-    response = l.client.post(link, data)
+    l.client.post(link, data)
 
 def bad_edit_user(l):
     link = findLinks(l,'fas fa-user-edit ml-2')
+    print link
     name = randomString(8)
     description = randomString(15)
     data = {'name': name , 'description' : description}
-    response = l.client.post(link, data)
+    l.client.post(link, data)
     #print response.text
 
 def randomString(stringLength=10):
