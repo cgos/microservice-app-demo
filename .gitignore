@@ -39,4 +39,8 @@ target/
 *.ear
 *.zip
 *.tar.gz
-*.rar
+
+#Python
+*__pycache__/
+*.py[cod]
+*$py.class.rar

@@ -18,6 +18,7 @@ This simple project contains 4 main components:
 First you need to git clone this repository
 
 * Install Locust: https://docs.locust.io/en/latest/installation.html#
+* Install python BeautifulSoup: pip install beautifulsoup4
 
 # Option 1: Run locally
 
