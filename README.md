@@ -31,7 +31,7 @@ First you need to git clone this repository
 * jmx exporter vs micrometer: https://github.com/prometheus/jmx_exporter
 * install prometheus: https://prometheus.io/docs/prometheus/latest/installation/
 * create prometheus config file
-* docker run -d --name=prometheus -p 9090:9090 -v /Users/gosselinchristian/Sandboxes/cgos/microservice-app-demo/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus --config.file=/etc/prometheus/prometheus.yml
+* Start Prometheus ```docker run -d --name=prometheus -p 9090:9090 -v /Users/gosselinchristian/Sandboxes/cgos/microservice-app-demo/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus --config.file=/etc/prometheus/prometheus.yml```
 * show request per second metrics
 * docker run -d --name=grafana -p 3000:3000 grafana/grafana
 * http://localhost:3000
