@@ -6,12 +6,13 @@ This simple project contains 4 main components:
 - Backend service
 - Database
 
-| Service                                   | Language      | Description                                                                                                                       |
+| Service                                   | Language      | Description                                          |
 | ----------------------------------------- | ------------- | -----------------------------------------------------|
 | [phonebookfront](./phonebookfront)        | Java          | Provide Thymeleaf template for basic CRUD.           |
 | [gateway](./gateway)                      | Java          | Spring Cloud Gateway, exposes routes.                |
 | [phonebookmanager](./phonebookmanager)    | Java          | Rest web service controller and database repository. |
-| [embedded database](./phonebookmanager)   | H2            | Stores the items.                                    |
+| [embedded database](./phonebookmanager)   | H2            | Stores the information.                              |
+| [loadgenerator](./loadgenerator)          | Python/Locust | Sends requests through the frontend.                 |
 
 
 # Installation
