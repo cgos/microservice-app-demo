@@ -18,35 +18,70 @@ public class PasswordManagerController {
     private UserRepository userRepository;
 
     @GetMapping()
-    public Iterable<User> getUsers() {
+    public Iterable<User> getUsers() throws InterruptedException {
         LOGGER.info("get users");
+
+        // Random behavior to generate latency and errors
+        Thread.sleep(1 + (long) (Math.random() * 500));
+        if (Math.random() > 0.8) {
+            throw new RuntimeException("Failed getUsers");
+        }
+
         return userRepository.findAll();
     }
 
     @GetMapping("/{id}")
-    public User getUser(@PathVariable("id") String id) {
+    public User getUser(@PathVariable("id") String id) throws InterruptedException {
         LOGGER.info("get user with id: " + id);
+
+        // Random behavior to generate latency and errors
+        Thread.sleep(1 + (long) (Math.random() * 500));
+        if (Math.random() > 0.8) {
+            throw new RuntimeException("Failed getUser");
+        }
+
         return userRepository.findById(id).orElseThrow(UserNotFoundException::new);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public User addUser(@RequestBody User user) {
+    public User addUser(@RequestBody User user) throws InterruptedException {
+
+        // Random behavior to generate latency and errors
+        Thread.sleep(1 + (long) (Math.random() * 500));
+        if (Math.random() > 0.8) {
+            throw new RuntimeException("Failed addUser");
+        }
         LOGGER.info("adding user: " + user.toString());
+
         return userRepository.save(user);
     }
 
     @PutMapping("/{id}")
-    public User updateUser(@RequestBody User user, @PathVariable String id) {
+    public User updateUser(@RequestBody User user, @PathVariable String id) throws InterruptedException {
         LOGGER.info("update user: " + user.toString());
+
+        // Random behavior to generate latency and errors
+        Thread.sleep(1 + (long) (Math.random() * 500));
+        if (Math.random() > 0.8) {
+            throw new RuntimeException("Failed updateUser");
+        }
+
         userRepository.findById(id)
                 .orElseThrow(UserNotFoundException::new);
         return userRepository.save(user);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteUser(@PathVariable("id") String id) {
+    public void deleteUser(@PathVariable("id") String id) throws InterruptedException {
         LOGGER.info("delete user: " + id);
+
+        // Random behavior to generate latency and errors
+        Thread.sleep(1 + (long) (Math.random() * 500));
+        if (Math.random() > 0.8) {
+            throw new RuntimeException("Failed getUsers");
+        }
+
         userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User not found"));
         userRepository.deleteById(id);
     }
