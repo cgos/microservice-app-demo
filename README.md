@@ -23,7 +23,7 @@ First you need to git clone this repository
 
 # Option 1: Run locally
 
-
+Metrics
 
 * Add micrometer dependency (sur 2/3 projets)
 * Add: management.endpoints.web.exposure.include=* (sur 1/3 projet)
