@@ -24,6 +24,7 @@ public class PasswordManagerController {
         // Random behavior to generate latency and errors
         Thread.sleep(1 + (long) (Math.random() * 500));
         if (Math.random() > 0.8) {
+            LOGGER.info("Failed get users");
             throw new RuntimeException("Failed getUsers");
         }
 

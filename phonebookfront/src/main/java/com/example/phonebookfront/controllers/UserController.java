@@ -22,21 +22,42 @@ public class UserController {
     GatewayClient gatewayClient;
 
     @GetMapping("/")
-    public String index(Model model) {
+    public String index(Model model) throws InterruptedException {
         LOGGER.info("index");
-        model.addAttribute("users",gatewayClient.getUsers());
+
+        // Random behavior to generate latency and errors
+        Thread.sleep(1 + (long) (Math.random() * 500));
+        if (Math.random() > 0.9) {
+            throw new RuntimeException("Failed index");
+        }
+
+        model.addAttribute("users", gatewayClient.getUsers());
         return "index";
     }
 
     @GetMapping("/signup")
-    public String showSignUpForm(User user) {
+    public String showSignUpForm(User user) throws InterruptedException {
         LOGGER.info("showSignupForm");
+
+        // Random behavior to generate latency and errors
+        Thread.sleep(1 + (long) (Math.random() * 500));
+        if (Math.random() > 0.9) {
+            throw new RuntimeException("Failed signup");
+        }
+
         return "add-user";
     }
 
     @PostMapping
-    public String addUser(@Valid User user, BindingResult result, Model model) {
+    public String addUser(@Valid User user, BindingResult result, Model model) throws InterruptedException {
         LOGGER.info("addUser " + user.toString());
+
+        // Random behavior to generate latency and errors
+        Thread.sleep(1 + (long) (Math.random() * 500));
+        if (Math.random() > 0.9) {
+            throw new RuntimeException("Failed addUser");
+        }
+
         if (result.hasErrors()) {
             return "add-user";
         }
@@ -47,16 +68,30 @@ public class UserController {
     }
 
     @GetMapping("/edit/{id}")
-    public String showUpdateForm(@PathVariable("id") String id, Model model) {
+    public String showUpdateForm(@PathVariable("id") String id, Model model) throws InterruptedException {
         LOGGER.info("showUpdateForm: " + id);
+
+        // Random behavior to generate latency and errors
+        Thread.sleep(1 + (long) (Math.random() * 500));
+        if (Math.random() > 0.9) {
+            throw new RuntimeException("Failed showUpdateForm");
+        }
+
         User user = gatewayClient.getUser(id);
         model.addAttribute("user", user);
         return "update-user";
     }
 
     @PostMapping("/update/{id}")
-    public String updateUser(@PathVariable("id") String id, @Valid User user, BindingResult result, Model model) {
+    public String updateUser(@PathVariable("id") String id, @Valid User user, BindingResult result, Model model) throws InterruptedException {
         LOGGER.info("updateUser: " + id);
+
+        // Random behavior to generate latency and errors
+        Thread.sleep(1 + (long) (Math.random() * 500));
+        if (Math.random() > 0.9) {
+            throw new RuntimeException("Failed updateUser");
+        }
+
         if (result.hasErrors()) {
             user.setId(id);
             return "update-user";
@@ -68,8 +103,15 @@ public class UserController {
     }
 
     @GetMapping("/delete/{id}")
-    public String deleteUser(@PathVariable("id") String id, Model model) {
+    public String deleteUser(@PathVariable("id") String id, Model model) throws InterruptedException {
         LOGGER.info("deleteUser: " + id);
+
+        // Random behavior to generate latency and errors
+        Thread.sleep(1 + (long) (Math.random() * 500));
+        if (Math.random() > 0.9) {
+            throw new RuntimeException("Failed deleteUser");
+        }
+
         gatewayClient.deleteUser(id);
         model.addAttribute("users", gatewayClient.getUsers());
         return "index";
