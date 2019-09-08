@@ -1,0 +1,1994 @@
+
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>G2 Scoring - A digital trace scoring system</title>
+
+		<meta name="author" content="Christoph Giese">
+		<meta name="keywords" content="IOC indicator-of-compromise scoring vetting cyber-defense cert digital-forensics incident-response deutsche-telekom cyber-defense-center cgi1 Christoph-Giese Bonn python python3 django misp">
+		<meta name="description" content="Developing a trace scoring system for cyber security purpose.">
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/black.css">
+
+		<!-- Theme used for syntax highlighting of code -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<header style="position: absolute;top: 50px; z-index:500; font-size:100px;background-color: rgba(0,0,0,0.5)"></header>
+
+		<style type="text/css">
+
+			html.dimbg_095 .slide-background.present {
+				opacity: 0.95 !important;
+			}
+			html.dimbg_08 .slide-background.present {
+				opacity: 0.8 !important;
+			}
+			html.dimbg_06 .slide-background.present {
+				opacity: 0.6 !important;
+			}
+			html.dimbg_05 .slide-background.present {
+		    opacity: 0.5 !important;
+			}
+			html.dimbg_04 .slide-background.present {
+		    opacity: 0.4 !important;
+			}
+			html.dimbg_03 .slide-background.present {
+		    opacity: 0.2 !important;
+			}
+			html.dimbg_02 .slide-background.present {
+		    opacity: 0.2 !important;
+			}
+			html.dimbg_01 .slide-background.present{
+		    opacity: 0.1 !important;
+			}
+			.overl {
+				background-color:rgba(0,0,0,0.9);
+			}
+			.overlaybottom{
+				background-color:rgba(0,0,0,0.9);
+				margin-bottom: 20% !important;
+			}
+			.overlaytop{
+				background-color:rgba(0,0,0,0.9);
+				margin-top: 20% !important;
+			}
+			.overlayleft{
+				background-color:rgba(0,0,0,0.9);
+				margin-right: 50% !important;
+			}
+			.overlayright{
+				background-color:rgba(0,0,0,0.9);
+				margin-left: 50% !important;
+			}
+
+			.transp_bottom {
+			    position:absolute;
+			    left:0;
+			    top: 350px;
+			    background: rgba(0,0,0,.8);
+			    height:1000px;
+					width: 100%;
+			}
+			.transp_top {
+			    position:absolute;
+			    left:0;
+			    top: -600px;
+			    background: rgba(0,0,0,.8);
+			    height:600px;
+					width: 100%;
+			}
+
+		</style>
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+
+				<section id="introduction">
+					<section data-state="dimbg_08"data-background-image="images/titlepage.png" data-background-color="black" data-background-size="95%" data-background-transition="none">
+							<h1>G2 Scoring</h1>
+							<h3>A digital trace scoring system for IoC vetting</h3>
+							<p>
+								<small>Developed by<br/>
+									<a target="_blank" href="http://bit.ly/cgiese">Christoph Giese</a><br/>
+									<a target="_blank" href="https://www.xing.com/profile/Jan_Goebel8">Jan Göbel</a>
+								</small>
+							</p>
+
+					</section>
+
+
+
+ 					<section data-state="dimbg_06"data-background-image="images/titlepage.png" data-background-color="black" data-background-size="95%" data-background-transition="none">
+
+						<h1>Agenda</h1><p>
+							<ol>
+								<li>Introduction / Background</li>
+								<hr/>
+								<li>The scoring system</li>
+								<li>Evaluation</li>
+								<hr/>
+								<li>Conclusion / Future work</li>
+							</ol>
+						</p>
+
+					</section>
+					<section data-state="dimbg_08"data-background-image="images/titlepage.png" data-background-color="black" data-background-size="95%" data-background-transition="none">
+						<div class="overl">
+							<h1>Who am I?</h1>
+							<h3>Christoph Giese</h3>
+
+							<small> <a target="_blank" href="https://www.fbi.h-da.de/studium/informatik-dual/bachelorstudienmodelle/kosi-bsc.html">BSc IT dual@telekom</a> --> <a target="_blank" href="https://master-digitale-forensik.de/">MSc digital forensics</a> <i>(this is the topic ;))</i> </small>
+							<br/>
+							<small> <a target="_blank" href="https://qph.ec.quoracdn.net/main-qimg-40c5c6bafdcd821c937d9f3f6e9d54f5-c">System Engineer</a> --> <a target="_blank" href="https://www.telekom.com/en/corporate-responsibility/data-protection-data-security/security/security/cyber-defense-center-362648">CERT/CDC</a> </small>
+
+							<!--Icons are from:
+							http://www.flaticon.com/free-icon/stack-exchange-symbol_25381
+							http://www.flaticon.com/free-icon/github-sign_25657
+							http://www.flaticon.com/free-icon/linkedin-logo_34227
+							http://www.flaticon.com/free-icon/xing-logotype_25289-->
+							<a target="_blank" href="https://github.com/cgi1"><img height="80px" style="border:0px; background-color: white;" src="images/icons/github.svg"></img></a>
+							<a target="_blank" href="https://stackoverflow.com/users/940592/gies0r"><img height="80px" style="border:0px; background-color: white;" src="images/icons/001-stack-exchange-symbol.png"></img></a>
+							<a target="_blank" href="https://www.linkedin.com/comm/in/christoph-giese-117125144"><img height="80px" style="border:0px; background-color: white;" src="images/icons/linkedin-logo.png"></img></a>
+							<a target="_blank" href="http://bit.ly/cgiese"><img height="80px" style="border:0px; background-color: white;" src="images/icons/xing-logotype.png"></img></a>
+							<a target="_blank" href="https://www.youracclaim.com/badges/5fff9bb8-1acf-46f0-8988-8265ca337d85/public_url"><img height="80px" style="border:0px" src="images/icons/GCFA.png"></img></a>
+							<a target="_blank" href="https://www.youracclaim.com/badges/b84eee3a-71eb-4d9b-96c1-5b1369d3b12a"><img height="80px" style="border:0px;" src="images/icons/GNFA.png"></img></a>
+							<br/>
+							Working at this topic collecting, filtering and enriching IoCs for security monitoring
+							<br/>
+
+						</div>
+					</section>
+				</section>
+
+
+				<section id="problem-statement">
+					<section data-state="dimbg_05"data-background-image="images/problem_statement/cowsay_how_to_handle_threat_data.png" data-background-color="black" data-background-size="90%" data-background-transition="none">
+						<div class="overl">
+							<h1>Introduction</h1>
+						</div>
+					</section>
+
+					<section data-state="dimbg_05"data-background-image="images/problem_statement/12118842256_c5fd2265a7_k.jpg" data-background-color="black" data-background-size="90%" data-background-transition="none">
+						<!--background image by https://flic.kr/p/jsUeA9-->
+							<div class="overl">
+								<h4>Challange 1/4</h4>
+								<br/>
+								<h2>Growing risk  of cyber threats</h2>
+								<br/>
+								<h2>
+									with higher complexity
+								</h2>
+							</div>
+					</section>
+					<section data-state="dimbg_05"data-background-image="images/problem_statement/6848823919_724f516a05_b.jpg" data-background-color="black" data-background-size="90%" data-background-transition="none">
+						<!--background image by https://flic.kr/p/brd1K2-->
+							<div class="overl">
+								<h3>Growing risks</h3>
+
+								Victims Cybercrime: <text style="color:red;">47%</text> of the private internet users
+								<br/>
+								Victims Cyber Espionage: <text style="color:red;">2 of 3</text> german companies
+								<br/>
+								A <i>Massive incident of data fraud/theft</i> is one of the <text style="color:red;">Top 5 Global Risks</text>
+									<br/>
+									<small>(others: large-scale involuntary migrations, major natural disasters, extreme weather conditions and terrorist attacks)</small>
+
+								</ul>
+
+								<h3>Higher complexity</h3>
+
+								<text style="color:red;">Hashing</text> algorithms are <text style="color:red;">Insufficient</text>
+								<br/>
+								Big malware <text style="color:red;">campaigns</text> are running <text style="color:red;">explosive</text>
+								<br/>
+
+							</div>
+					</section>
+
+					<section data-state="dimbg_05"data-background-image="images/problem_statement/12118842256_c5fd2265a7_k.jpg" data-background-color="black" data-background-size="90%" data-background-transition="none">
+						<!--background image by https://flic.kr/p/jsUeA9-->
+							<div class="overl">
+								<h4>Challange 2/4</h4>
+								<br/>
+								<h2>Amount of digital traces too analyze</h2><h2 style="color:yellow;">is growing fast</h2>
+								<br/>
+								<h4>
+									Growing Haystack; More Needles
+								</h4>
+							</div>
+					</section>
+
+					<section data-state="dimbg_05"data-background-image="images/problem_statement/9540714082_61b4fcc25f_k.jpg" data-background-color="black" data-background-size="100%" data-background-transition="none">
+						<!--Background image by https://flic.kr/p/fx5DUo-->
+						<div class="overl">
+
+							<h3>Growing Haystack</h3>
+							<table>
+								<thead>
+									<tr>
+										<th>IT evolution</th>
+										<th>Security effect </th>
+									</tr>
+								</thead>
+
+								<tr>
+									<td>Cheap data storage</td>
+									<td>Increased amount of produced (and logged) traces</td>
+								</tr>
+								<tr>
+									<td>Better connectivity</td>
+									<td>More and more logging centralization</td>
+								</tr>
+								<tr>
+									<td>Increased computing power</td>
+									<td>Makes it searchable</td>
+								</tr>
+							</table>
+						</div>
+					</section>
+					<section data-state="dimbg_05"data-background-image="images/problem_statement/9540714082_61b4fcc25f_k.jpg" data-background-color="black" data-background-size="100%" data-background-transition="none">
+						<!--Background image by https://flic.kr/p/fx5DUo-->
+						<div class="overl">
+								<h3>Growing Haystack (cont.)</h3>
+
+								<ul>
+									<li>Improved detection capabilities in AV</li>
+									<li>Endpoint Agents (e.g. GRR)</li>
+									<li>Incident Response (e.g. HBIV/Redline)</li>
+									<li>Web-Traffic Sandboxes (e.g. FE-NX)</li>
+									<li>SIEM(s)</li>
+									<li>[...]</li>
+									<!--<li class="fragment">Improved usability in operating systems</li>-->
+								</ul>
+							</div>
+
+					</section>
+
+					<section data-state="dimbg_05"data-background-image="images/problem_statement/32914385203_dd87b6beaa_o.jpg" data-background-color="black" data-background-size="100%" data-background-transition="none">
+
+							<!-- Background picture from https://www.flickr.com/photos/valoise/32914385203/ -->
+							<div class="overl">
+								<h3>More Needles</h3>
+								<table>
+									<thead>
+										<tr>
+											<th>Security evolution</th>
+											<th>Estimated amount</th>
+										</tr>
+									</thead>
+
+									<tr>
+										<td>Sharing groups</td>
+										<td>Dozens of sector-, revenue-, country-specifc groups</td>
+									</tr>
+									<tr>
+										<td>Advisories from public authorities</br> (e.g. Federal Intelligence Service)</td>
+										<td>A few advisories p. Y. with > 100 IOCs each</td>
+									</tr>
+									<tr>
+										<td>Growing market of free feeds</td>
+										<td>> 100 feeds with >10(0)k IOCs p.D. </td>
+									</tr>
+									<tr>
+										<td>Growing market of paid feeds</td>
+										<td>{x} actors with > {y} employees in the market</td>
+									</tr>
+							</table>
+						</div>
+					</section>
+					<section data-state="dimbg_05"data-background-image="images/problem_statement/32914385203_dd87b6beaa_o.jpg" data-background-color="black" data-background-size="100%" data-background-transition="none">
+						<!-- Background picture from https://www.flickr.com/photos/valoise/32914385203/ -->
+							<div class="overl">
+							<h3>More Needles (cont.)</h3>
+
+							<table>
+								<thead>
+									<tr>
+										<th>Evolution</th>
+										<th>Estimated amount</th>
+									</tr>
+								</thead>
+								<tr>
+									<td>Own automated quarantine sandboxing</td>
+									<td>>100 IOCs p. D.</td>
+								</tr>
+								<tr>
+									<td>Own reverse engineering</td>
+									<td>Depends on the malware researcher</td>
+								</tr>
+								<tr>
+									<td>Own forensic cases</td>
+									<td>Depends on the forensic guys</td>
+								</tr>
+								<tr>
+									<td>Own hunter teams</td>
+									<td><code>404</code></td>
+								</tr>
+								<tr>
+									<td>Own data analytics</td>
+									<td>>100 p.M.</td>
+								</tr>
+							</table>
+							<div>
+
+					</section>
+
+
+					<section data-state="dimbg_05"data-background-image="images/problem_statement/12118842256_c5fd2265a7_k.jpg" data-background-color="black" data-background-size="90%" data-background-transition="none">
+						<!--background image by https://flic.kr/p/jsUeA9-->
+							<div class="overl">
+								<h4>Challange 3/4</h4>
+								<br/>
+								<h2>Heterogenus</h2>
+								<br/>
+								<h4>
+									networks, butgets and skills
+								</h4>
+							</div>
+					</section>
+
+					<section data-state="dimbg_05"data-background-image="images/problem_statement/6848823919_724f516a05_b.jpg" data-background-color="black" data-background-size="90%" data-background-transition="none">
+						<!--background image by https://flic.kr/p/jsUeA9-->
+							<div class="overl">
+
+								The companies
+								<br/><br/>
+								<text style="color:red;">infrastructure, money</text> and <text style="color:red;">know-how</text>
+								<br/><br/>
+								decides which detection capabilities are available.
+								<br/><br/>
+
+							</div>
+					</section>
+
+					<section data-state="dimbg_05"data-background-image="images/problem_statement/12118842256_c5fd2265a7_k.jpg" data-background-color="black" data-background-size="90%" data-background-transition="none">
+						<!--background image by https://flic.kr/p/jsUeA9-->
+							<div class="overl">
+								<h4>Challange 4/4</h4>
+								<br/>
+								<h2>High False-Positve rate</h2>
+								<br/>
+								<h3>using free IoC sources</h3>
+							</div>
+					</section>
+
+					<section data-state="dimbg_05"data-background-image="images/problem_statement/cowsay_how_to_handle_threat_data.png" data-background-color="black" data-background-size="90%" data-background-transition="none">
+						<div class="overl">
+							<h1>Motivation</h1>
+							<i>&ldquo;The <text style="color:orange;">growing amount of data</text>
+								<br/>and the <text style="color:orange;">high false-positive rate</text> using IoCs in security controls
+								<br/>raises the need for an <text style="color:green;">automated IOC vetting system</text>,
+								<br/>which takes the <text style="color:orange;">heterogeneous structure</text> of a computer network into account.&ldquo;</i>
+						</div>
+					</section>
+
+					<section data-state="dimbg_05"data-background-image="images/problem_statement/cowsay_how_to_handle_threat_data.png" data-background-color="black" data-background-size="90%" data-background-transition="none">
+						<div class="overl">
+							<h1>Goals</h1>
+							<h4>for an automated IOC vetting system</h4
+
+							 <ol>
+								 	<li><text style="color:green;">Improved usage</text> of open source intelligence</li>
+							 		<li><text style="color:green;">Correlate</text> information to provide a fast overview</li>
+							 		<li><text style="color:green;">Lower</text> False-Positive rate</li>
+						 </ol>
+
+						 <br/><br/>
+
+						 <b>Do it autonomously</b>
+
+
+						</div>
+					</section>
+
+				</section>
+
+
+				<section id="scoring_system">
+
+					<section data-state="dimbg_08" data-background-image="images/system_architecture/titlepage_scoring_system.png" data-background-size="85%" data-background-color="black" data-background-transition="none">
+						<div class="overl">
+							<h1>The scoring system</h1>
+						</div>
+					</section>
+
+					<section data-state="dimbg_08" data-background-image="images/system_architecture/titlepage_scoring_system_design.png" data-background-size="85%" data-background-color="black" data-background-transition="none">
+						<div class="overl">
+							<h1>Design</h1>
+							<h5>How is the scoring system generally working?</h5>
+						</div>
+					</section>
+
+					<!--
+					<section data-state="dimbg_04" data-background-image="images/algorithm/4996192549_c42f69ffae_o.jpg" data-background-size="85%" data-background-color="black" data-background-transition="none">
+					-->
+						<!-- Background by https://www.flickr.com/photos/xrustypicturesx/4996192549/ -->
+					<!--
+						<h1>First of all...</h1>
+						<h3>... there is no 100% solution which is stealing the IT security jobs.</h3>
+						<img src="images/meme/quit_my_job_feeling_good.jpeg"></img><br/>
+						<q cite="http://lewestech.com/presentations/">&ldquo;Get good findings faster.&rdquo;</q><br/>(Phil Hagen)
+					</section>
+					-->
+
+					<section data-state="dimbg_04" data-background-image="images/algorithm/4996192549_c42f69ffae_o.jpg" data-background-size="85%" data-background-color="black" data-background-transition="none">
+						<!-- Background by https://www.flickr.com/photos/xrustypicturesx/4996192549/ -->
+						<div class="overl">
+							<h5>In general</h5>
+							<h3>Ask questions like an security analyst would do!</h3>
+						</div>
+					</section>
+
+
+					<section data-background-image="images/algorithm/who_am_i_1.png" data-background-color="black" data-background-size="90%" data-background-transition="none">
+
+					</section>
+					<!--
+					<section data-background-image="images/algorithm/who_am_i_2_reserved_ips.png" data-background-color="black" data-background-size="90%" data-background-transition="none">
+
+					</section>
+					<section data-background-image="images/algorithm/who_am_i_3_well_known_domains.png" data-background-color="black" data-background-size="90%" data-background-transition="none">
+
+					</section>
+
+					<section data-background-image="images/algorithm/who_am_i_4_well_known_domains_strings.png" data-background-color="black" data-background-size="90%" data-background-transition="none">
+
+					</section>
+					<section data-background-image="images/algorithm/who_am_i_6_multiple_hits_thinking_man.png" data-background-color="black" data-background-size="90%" data-background-transition="none">
+
+					</section>
+					-->
+
+					<!--
+					<section>
+						<h3>How to get the</h3>
+						<h1>answers?</h1>
+					</section>
+					-->
+					<section data-state="dimbg_04" data-background-image="images/algorithm/4996192549_c42f69ffae_o.jpg" data-background-size="85%" data-background-color="black" data-background-transition="none">
+						<!-- Background by https://www.flickr.com/photos/xrustypicturesx/4996192549/ -->
+						<div class="overl">
+							<h5>More specific</h5>
+							<h3>How can I answer these questions systematically?</h3>
+						</div>
+					</section>
+
+
+					<section data-background-image="images/system_architecture/workflow_without_data_sources_white_black.png" data-background-color="black" data-background-size="55%" data-background-transition="none">
+
+					</section>
+
+
+					<section data-state="dimbg_08" data-background-image="images/system_architecture/titlepage_scoring_system_formula.png" data-background-size="85%" data-background-color="black" data-background-transition="none">
+						<div class="overl">
+							<h1>Formula</h1>
+							<h4>How to weight the factors?</h4>
+						</div>
+					</section>
+
+
+					<section data-state="dimbg_03" data-background-image="images/algorithm/4257452000_d375d9f2a6_o.jpg" data-background-color="black" data-background-size="100%" data-background-transition="none">
+							<text style="color:#b8fefc">$S_{Total}(t) = \sum\nolimits_{i=1}^{N} S_Q(q_i,t)$</text>
+							<br/><br/>
+							where <text style="color:#b8fefc">$S_{Total}(t)$</text> is the total score of a trace <text style="color:#b8fefc">$t$</text> and <text style="color:#b8fefc">$S_Q(q,t)$</text> the score of a particular question <text style="color:#b8fefc">$q$</text> for trace <text style="color:#b8fefc">$t$</text>.
+							<br>With <text style="color:#b8fefc">$i$</text> iterating over <text style="color:#b8fefc">$N=no. of questions$</text> the total score is the sum of all question scores.
+							<br/><br/>
+
+							<div class="fragment">
+								Each question score <text style="color:#b8fefc">$S_Q(q,t)$</text> depends on three factors: <br/><br/>
+								<ol>
+									<li>The weight of the question <text style="color:#b8fefc">$W_Q(q)$</text></li>
+									<li>The <u>d</u>ata sources evaluation score <text style="color:#b8fefc">$S_{D}(t,q)$</text><br/></li>
+									<li>The detection <u>c</u>apabilities evaluation score <text style="color:#b8fefc">$S_{C}(t,q)$</text></li>
+								</ol>
+
+								<br/><br/>
+								<text style="color:#b8fefc">$S_Q(q,t) = W_Q(q) * S_{D}(t,q)  * S_{C}(t,q)$</text>
+							</div>
+					</section>
+
+					<section data-state="dimbg_03" data-background-image="images/algorithm/4257452000_d375d9f2a6_o.jpg" data-background-color="black" data-background-size="100%" data-background-transition="none">
+						<br/><br/>
+						<h1><text style="color:#b8fefc">$W_Q(q)$</text></h1>
+						<h4>The question weight</h4>
+						<br/><br/>
+						<table>
+					  <tr>
+					    <td>$W_{Pre}(q)$</th>
+					    <td>Precision</td>
+							<td><i>Of the answer</i></td>
+					  </tr>
+					  <tr>
+					    <td>$W_{Sec}(q)$</th>
+					    <td><b>Security impact</b><br></td>
+							<td><i>If the answer is yes</i></td>
+					  </tr>
+					  <tr>
+					    <td>$W_{Fap}(q)$</th>
+					    <td><b>False-positive amount</b></td>
+							<td><i>Expected</i></td>
+					  </tr>
+					  </tr>
+					</table>
+
+					<br/><br/>
+
+					<div class="fragment">
+						$W_Q(q) = W_{Pre}(q_i)\frac{W_{Sec}(q_i)}{W_{Fap}(q_i)}$
+					</div>
+
+
+					</section>
+					<section data-state="dimbg_03" data-background-image="images/algorithm/4257452000_d375d9f2a6_o.jpg" data-background-color="black" data-background-size="100%" data-background-transition="none">
+						<br/><br/>
+						<h1 style="margin-top:-10%"><text style="color:#b8fefc">$S_D(t,q)$</text></h1>
+						<h4>Data sources evaluation score</h4>
+						<br/><br/>
+						<table>
+					  <tr>
+					    <td>$S_{Time}(q,d)$</td>
+					    <td><b>Age of information</b></td>
+							<td><i>If important for question $q$</i></td>
+					  </tr>
+					  <tr>
+					    <td>$S_{Rel}(q,d)$</td>
+					    <td><b>Reliability</b></td>
+							<td><i>Quality history of $d$</i></td>
+					  </tr>
+					  <tr>
+					    <td>$S_{Con}(q,d)$</td>
+					    <td>Information content</td>
+							<td><i>Confirmed information</i> better</td>
+					  </tr>
+					  </tr>
+					</table>
+
+					<br/><br/>
+
+					<div class="fragment">
+						$S_D(t,q) = \max_{k=1}^N  \big(\frac{S_{Time}(q_i,d_k)}{\sqrt{(S_{Rel}(q_i,d_k) * S_{Con}(q_i,d_k))}}\big)$
+						<br/><br/>with $N=\text{No. of data sources}$
+
+					</div>
+
+
+					</section>
+
+					<section data-state="dimbg_03" data-background-image="images/algorithm/4257452000_d375d9f2a6_o.jpg" data-background-color="black" data-background-size="100%" data-background-transition="none">
+						<br/><br/>
+						<h1 style="margin-top:-10%"><text style="color:#b8fefc">$S_{C}(t,q)$</text></h1>
+						<h4>Detection capability score</h4>
+						<table style="border-collapse: collapse;">
+					  <tr>
+						<tr>
+					    <td>$S_{Tec}(c,q)$</th>
+					    <td>Techniques</td>
+							<td><i>Is hacking technique $_{Tec}$ behind $q$ answerable in capability $c$?</i></td>
+					  </tr>
+					  <tr>
+					    <td>$S_{Typ}(c,t)$</th>
+					    <td><b>Types and formats</b><br></td>
+							<td><i>Is $c$ capabable of capturing traces from same type as $t$?</i></td>
+					  </tr>
+					  <tr>
+					    <td>$S_{His}(c,q)$</th>
+					    <td><b>Availability of Historically data</b></td>
+							<td><i>Can we search for it in the past?</i></td>
+					  </tr>
+					  <tr class="fragment">
+					    <td>$S_{Vis}(c,q,t)$</th>
+					    <td><b>Visibility</b></td>
+							<td>
+								<i>Placement of the system ($S_{Int}$),
+								<br/>Applied (protocol/port) filters on interface capture ($S_{Ftr}$),
+								<br/>Richness of captured surroundings ($S_{Sur}$),
+								<br/>Additional information ($S_{Adi}$)
+
+								</i>
+							</td>
+					  </tr>
+					</table>
+					<br/><br/>
+
+					<div class="fragment">
+						$S_{C}(t,q)=\max_{p=1}^N \big(\frac{S_{His}(c_p,q_i)}{S_{Tec}(c_p,q_i) * S_{Typ}(c_p,t)} * \underbrace{\frac{\frac{S_{Sur}(c_p,t)}{S_{Adi}(c_p,t)}}{S_{Int}(c_p,q_i) * S_{Ftr}(c_p,q_i,t)}}_{S_{Vis}}\big)$
+						<br/><br/>with $N=\text{No. of detection capabilities}$
+
+					</div>
+					<br/>
+					</section>
+
+					<section data-state="dimbg_03" data-background-image="images/algorithm/4257452000_d375d9f2a6_o.jpg" data-background-color="black" data-background-size="100%" data-background-transition="none">
+						<h2>our scoring formula</h2>
+						$
+						S_{Total}(t) = \sum\nolimits_{i=1}^{N} \bigg(\overbrace{W_{Pre}(q_i)\frac{W_{Sec}(q_i)}{W_{Fap}(q_i)}}^{W_Q(q_i)}* \underbrace{\max_{k=1}^N  \big(\frac{S_{Time}(q_i,d_k)}{\sqrt{(S_{Rel}(q_i,d_k) * S_{Con}(q_i,d_k))}}\big)}_{S_{D}(t,q_i)} * \\
+						\underbrace{\max_{p=1}^N \big(\frac{S_{His}(c_p,q_i)}{S_{Tec}(c_p,q_i) * S_{Typ}(c_p,t)} * \frac{\frac{S_{Sur}(c_p,t)}{S_{Adi}(c_p,t)}}{S_{Int}(c_p,q_i) * S_{Ftr}(c_p,q_i,t)}\big)}_{S_{C}(t,q_i)}\bigg)
+						$
+					</section>
+
+
+					<section data-state="dimbg_08" data-background-image="images/system_architecture/titlepage_scoring_system_implementation.png" data-background-size="85%" data-background-color="black" data-background-transition="none">
+						<div class="overl">
+							<h1>Implementation</h1>
+							<h4>How to build a system which can do this autonomously?</h4>
+						</div>
+					</section>
+
+
+					<section data-background-image="images/system_architecture/g2_system_architecture.png" data-background-size="85%" data-background-color="black" data-background-transition="none">
+
+
+					</section>
+					<section data-state="dimbg_08" data-background-image="images/system_architecture/titlepage_scoring_system.png" data-background-size="85%" data-background-color="black" data-background-transition="none">
+						<div class="overl">
+							<h3>Lets see if this works in the </h3>
+							<h1>evaluation</h1>
+						</div>
+					</section>
+
+
+
+				</section>
+
+				<section id="evaluation">
+
+					<section data-state="dimbg_08" data-background-image="images/evaluation/evaluation_aufbau_proxy_siem_rating_black_white.png" data-background-color="black" data-background-size="60%" data-background-transition="none">
+						<div class="overl">
+							<h1>Evaluation</h1>
+						</div>
+					</section>
+
+					<section data-background-image="images/evaluation/evaluation_aufbau_proxy_siem_rating_black_white.png" data-background-color="black" data-background-size="60%" data-background-transition="none">
+
+
+					</section>
+
+					<section data-state="dimbg_05"data-background-image="images/evaluation/8413789062_5b624f6c0d_o.jpg" data-background-color="black" data-background-size="100%" data-background-transition="none">
+                    	<!--Background image by https://www.flickr.com/photos/91327559@N05/8413789062/-->
+						<div class="overl">
+							<h3>Comprehensive evaluation</h3>
+							<table>
+								<thead>
+									<tr>
+										<th>Feed name</th>
+										<th>IPs in phase 1</th>
+										<th>IPs in phase 2</th>
+									</tr>
+								</thead>
+								<tr>
+								<tr>
+									<td>ZeusTracker</td>
+									<td>132</td>
+									<td>132</td>
+								</tr>
+								<tr>
+									<td>RansomwareTracker</td>
+									<td>0</td>
+									<td>297</td>
+								</tr>
+								<tr>
+									<td>Bambenek All IPs</td>
+									<td>399</td>
+									<td>0</td>
+								</tr>
+								<tr>
+									<td>Bambenek High Confidence</td>
+									<td>112</td>
+									<td>89</td>
+								</tr>
+								<tr>
+									<td>US CERT  - Hidden Cobra</td>
+									<td>0</td>
+									<td>627</td>
+								</tr>
+								<tr>
+									<td>malc0de</td>
+									<td>0</td>
+									<td>213</td>
+								</tr>
+								<tr>
+									<td>APTNotes 2017</td>
+									<td>0</td>
+									<td>224</td>
+								</tr>
+
+							</table>
+						</div>
+					</section>
+					<section data-state="dimbg_05"data-background-image="images/evaluation/8413789062_5b624f6c0d_o.jpg" data-background-color="black" data-background-size="100%" data-background-transition="none">
+                    	<!--Background image by https://www.flickr.com/photos/91327559@N05/8413789062/-->
+						<div class="overl">
+							<h3>Comprehensive evaluation</h3>
+							<table>
+								<thead>
+									<tr>
+										<th>Phase</th>
+										<th>Timeframe</th>
+										<th>IP addresses</th>
+										<th>Alarms generated</th>
+										<th>Alarms investigated</th>
+									</tr>
+								</thead>
+
+								<tr>
+									<td>1</td>
+									<td>2017-11-15 - 2017-11-22
+	                                    (7d)</td>
+	                                <td>640</td>
+									<td>61,442</td>
+									<td>25,777</td>
+								</tr>
+								<tr>
+									<td>2</td>
+									<td>2017-11-22 - 2018-02-17
+	                                    (87d)</td>
+									<td>1580</td>
+									<td>110,912</td>
+									<td>21,733</td>
+								</tr>
+								<tr><td></td><td></td><td></td><td></td><td></td></tr>
+								<tr>
+									<td>SUM</td>
+									<td>2017-11-15 - 2018-02-17
+	                                    (<text style="color:green;">94d</text>)</td>
+									<td> > 1750</td>
+									<td>172,354</td>
+									<td>47,510</td>
+								</tr>
+							</table>
+						</div>
+					</section>
+
+
+					<section data-state="dimbg_05" data-background-image="images/evaluation/evaluation_aufbau_proxy_siem_rating_black_white.png" data-background-color="black" data-background-size="60%" data-background-transition="none">
+
+						<div class="overl">
+							<h2>Results</h2>
+						</div>
+
+					</section>
+
+          <section data-state="dimbg_05"data-background-image="images/evaluation/8413789062_5b624f6c0d_o.jpg" data-background-color="black" data-background-size="100%" data-background-transition="none">
+
+              <h3>Overwhelming amount of false-positives</h3>
+
+              <img width="40%" style="border:0px; background-color: white;" src="images/evaluation/classifications_barchart_1.png"></img>
+              <img width="40%" style="border:0px; background-color: white;" src="images/evaluation/classifications_barchart_2.png"></img>
+              <br>
+              Phase 1 | Phase 2
+
+          </section>
+          <section data-state="dimbg_05"data-background-image="images/evaluation/8413789062_5b624f6c0d_o.jpg" data-background-color="black" data-background-size="100%" data-background-transition="none">
+
+              <h3>A few feeds producing the majority of alerts</h3>
+              <img width="40%" style="border:0px; background-color: white;" src="images/evaluation/hits_per_feed_1.png"></img>
+              <img width="40%" style="border:0px; background-color: white;" src="images/evaluation/hits_per_feed_2.png"></img>
+              <br>
+              Phase 1 | Phase 2
+
+          </section>
+
+          <section data-state="dimbg_05"data-background-image="images/evaluation/8413789062_5b624f6c0d_o.jpg" data-background-color="black" data-background-size="100%" data-background-transition="none">
+
+              <h3>A few IP addresses producing a lot of alerts</h3>
+              <img width="40%" style="border:0px; background-color: white;" src="images/evaluation/hits_per_ip_1.png"></img>
+              <img width="40%" style="border:0px; background-color: white;" src="images/evaluation/hits_per_ip_2.png"></img>
+              <br>
+              Phase 1 | Phase 2
+
+          </section>
+          <section data-state="dimbg_05"data-background-image="images/evaluation/8413789062_5b624f6c0d_o.jpg" data-background-color="black" data-background-size="100%" data-background-transition="none">
+
+              <h3>How good is our scoring system able to filter the false-positives?</h3>
+              <img width="40%" style="border:0px; background-color: white;" src="images/evaluation/super_scatter_1.png"></img>
+              <img width="40%" style="border:0px; background-color: white;" src="images/evaluation/super_scatter_2.png"></img>
+              <br>
+              Phase 1 | Phase 2
+
+          </section>
+
+                    <section data-state="dimbg_03"data-background-image="images/evaluation/8413789062_5b624f6c0d_o.jpg" data-background-color="black" data-background-size="100%" data-background-transition="none">
+
+                        <!--<h3>How good is our scoring system able to filter the false-positives?</h3>-->
+
+                        <h1><text style="color:#39ff33">98% of all false-positives</text></h1>
+						have been filtered out using our scoring system
+
+						<hr>
+
+						<h1><text style="color:#39ff33">No case</text></h1>
+						in which our system would have classified a high quality indicator as unsuitable
+
+
+                    </section>
+                    <section data-state="dimbg_07"data-background-image="images/evaluation/33307049175_5328f585c2_k.jpg" data-background-color="black" data-background-size="100%" data-background-transition="none">
+
+						<!-- picture from https://www.flickr.com/photos/plusbeautumeurs/33307049175/ -->
+
+						<div class="overl">
+							<h1><text style="color:#39ff33">98% of all false-positives</text></h1>
+							<h3><text style="">What does this mean for the SoC analyst?</text></h3>
+
+							<ul>
+								<li><b>47,510 &nbsp;&nbsp;alerts</b> = <u>141 hours</u> (11 seconds per alarm)</li>
+								<li><b>172,354 	alerts</b> = <u>512 hours</u></li>
+								<br/>
+								<li>45,124 of the 47,510 alarms classified as false-positive</li>
+								<li>False-positive ratio=<u>95%</u></li>
+								<br/>
+								<li><text style="color:#39ff33">44,440</text> of these 45,124 <text style="color:#39ff33">false-positives</text> would have been <text style="color:#39ff33">pre-filtered</text> by using our scoring system.</li>
+								<li>Successful filter rate of <u>98.5%</u></li>
+
+							</ul>
+
+
+						</div>
+
+
+                    </section>
+					<section data-state="dimbg_07"data-background-image="images/evaluation/33307049175_5328f585c2_k.jpg" data-background-color="black" data-background-size="100%" data-background-transition="none">
+
+						<!-- picture from https://www.flickr.com/photos/plusbeautumeurs/33307049175/ -->
+
+						<div class="overl">
+							<h3>What does this mean for the SoC analyst?</h3>
+
+							By using our scoring system, <br/> <br/>
+
+							<ul>
+
+								<li><text style="color:#39ff33"><u>135.8</u></text> of <text style="color:red"><u>141</u></text> hours would have been avoided</li>
+								<li>All alarms: Saved time is even <text style="color:#39ff33"><u>500.3</u></text> of <text style="color:red"><u>512</u></text> hours</li>
+							</ul>
+							<br/><br/>
+							<h3>Analyst can spend time on in-depth analysis of high-quality alarms</h3>
+
+						</div>
+
+          </section>
+
+
+				</section>
+
+				<section id="Summary">
+					<section data-state="dimbg_08" data-background-image="images/system_architecture/titlepage_scoring_system.png" data-background-size="85%" data-background-color="black" data-background-transition="none">
+						<div class="overl">
+							<h1>Summary</h1>
+						</div>
+					</section>
+					<section data-state="dimbg_05" data-background-image="images/system_architecture/titlepage_scoring_system.png" data-background-size="85%" data-background-color="black" data-background-transition="none">
+						<div class="overl">
+							<h3>Unfiltered use of standard-malware feeds not recommended</h3>
+							<br/>
+							<li>Outdated data (partly from 2016)</li>
+							<br/>
+							<li>Ineffective filtering of multihosters</li>
+							<br/>
+							<li>Expired / Parking IPs</li>
+
+						</div>
+					</section>
+					<section data-state="dimbg_05" data-background-image="images/system_architecture/titlepage_scoring_system.png" data-background-size="85%" data-background-color="black" data-background-transition="none">
+						<div class="overl">
+							<h3>Challenges in alarm classification</h3>
+							<h4><i>Attackers adapt!</i></h4>
+							<br/>
+							<li>Traffic Distribution Systems</li>
+							<br/>
+							<li>Encryption</li>
+							<br/>
+							<li>Domain Fronting (hide in plainsight)</li>
+
+						</div>
+					</section>
+					<section data-state="dimbg_05" data-background-image="images/system_architecture/titlepage_scoring_system.png" data-background-size="85%" data-background-color="black" data-background-transition="none">
+						<div class="overl">
+							<h3>IoC quality assurance is tough, but can work</h3>
+							<br/>
+							<li>Systematically approach</li>
+							<br/>
+							<li>Automation means elevation</li>
+							<br/>
+							<li>Spent the limited time as good as possible!</li>
+
+						</div>
+					</section>
+				</section>
+
+				<section id="Future Work">
+					<section data-state="dimbg_08"data-background-image="images/future_work/39435522962_f4240ffe70_o.jpg" data-background-color="black" data-background-size="100%" data-background-transition="none">
+						<div class="overl">
+							<h1>Future work</h1>
+						</div>
+					</section>
+					<section data-state="dimbg_05"data-background-image="images/future_work/39435522962_f4240ffe70_o.jpg" data-background-color="black" data-background-size="100%" data-background-transition="none">
+						<div class="overl">
+							<h3>Enhancements</h3>
+							<br/>
+							<li>More data sources</li>
+							<br/>
+							<li>Improve weighting formula</li>
+							<br/>
+							<li>Improve self-written heuristics</li>
+
+						</div>
+					</section>
+					<section data-state="dimbg_05"data-background-image="images/future_work/39435522962_f4240ffe70_o.jpg" data-background-color="black" data-background-size="100%" data-background-transition="none">
+						<div class="overl">
+							<h3>Extensions</h3>
+							<li>Protect other types of computer networks</li>
+							<br/>
+							<li>Implement more question (<i>e.g. is scanner</i>)</li>
+							<br/>
+							<li>Advanced detection goals / More IoC types</li>
+
+						</div>
+					</section>
+					<section data-state="dimbg_05"data-background-image="images/future_work/39435522962_f4240ffe70_o.jpg" data-background-color="black" data-background-size="100%" data-background-transition="none">
+						<div class="overl">
+							<h3>Advanced detection goals / More IoC types</h3>
+
+							<img src="images/future_work/Pyramid_of_Pain_v2.png"></img>
+							<br/>
+							Strong fundament --> Lets go to the top!
+							<br/>
+							<small><a href="http://detect-respond.blogspot.de/2013/03/the-pyramid-of-pain.html">Source</a></small>
+
+						</div>
+					</section>
+
+				</section>
+
+				<section id="final_slides">
+					<section data-state="dimbg_08"data-background-image="images/titlepage.png" data-background-color="black" data-background-size="95%" data-background-transition="none">
+						<h1>Thanks!</h1>
+						<h3>Q?</h3>
+						<a target="_blank" href="http://bit.ly/g2score">bit.ly/g2score</a><br/>
+						<a target="_blank" href="http://bit.ly/cgiese">bit.ly/cgiese</a>
+					</section>
+
+					<section data-state="dimbg_08"data-background-image="images/titlepage.png" data-background-color="black" data-background-size="95%" data-background-transition="none">
+						<div class="overl">
+							<h1>Licences</h1>
+							<small>
+								<br/>Open source material is great stuff. So the content of this presentation is published under <a target="_blank" href="https://creativecommons.org/licenses/by-nc/2.0/">Creative Common License</a> as well.
+								<br/>Which means you can share and adapt it, but you need to attribute my name (Christoph Giese) and a link to this presentation (<a target="_blank" href="https://cgi1.gitlab.io/g2scoring-presentation/">https://cgi1.gitlab.io/g2scoring-presentation/</a>).
+								<br/>Feel free to work with it and <a target="_blank" href="http://bit.ly/cgiese">let me know</a> your thoughts about it.
+								<br/>
+								<br/>------
+								<br/>Images
+								<br/>
+								Most of the diagrams and stuff are self-made (CC license like above).
+								<br/>
+								<br/>The icons/logos are from <a target="_blank" href="http://www.flaticon.com/">flaticon.com</a> published under CC license as well:
+								<a target="_blank"  href="http://www.flaticon.com/free-icon/stack-exchange-symbol_25381">Stackoverflow</a>,
+								<a target="_blank"  href="http://www.flaticon.com/free-icon/github-sign_25657">Github</a>,
+								<a target="_blank"  href="http://www.flaticon.com/free-icon/linkedin-logo_34227">Linkedin</a>,
+								<a target="_blank"  href="http://www.flaticon.com/free-icon/xing-logotype_25289">Xing</a>,
+								<a target="_blank"  href="https://www.giac.org/">GCFA</a>,
+								<a target="_blank"  href="https://www.giac.org/">GCNA</a>.
+								<br/>
+								<br/>The background images are from <a target="_blank" href="https://www.flickr.com/">flickr.com</a> published under <a target="_blank" href="https://creativecommons.org/licenses/by-nd/2.0/">CC license</a> as well:
+
+								<a target="_blank"  href="www.flickr.com/photos/valoise/32914385203/">knitting needles</a>,
+								<a target="_blank"  href="www.flickr.com/photos/xrustypicturesx/4996192549/">Fun With Bike Lights 2</a>,
+								<a target="_blank"  href="www.flickr.com/photos/peterrosbjerg/4257452000">The Beauty of Mathematics</a>,
+								<a target="_blank"  href="www.flickr.com/photos/duncanh1/8278623046/">SIS building</a>,
+								<a target="_blank"  href="www.flickr.com/photos/andr3/13906559772/">Long road</a>,
+								<a target="_blank"  href="https://www.flickr.com/photos/dvanzuijlekom/8523276256/">Green</a>,
+								<a target="_blank"  href="https://www.flickr.com/photos/68751915@N05/6848823919/">Money</a>.
+
+
+							</small>
+
+						</div>
+					</section>
+				</section>
+
+
+				<section id="good_iocs">
+					<section data-state="dimbg_08"data-background-image="images/ioc_quality/g2_haystack_needle.png" data-background-color="black" data-background-size="90%" data-background-transition="none">
+						<div class="overl">
+							<h1>Good IoCs</h1>
+						</div>
+					</section>
+
+					<section data-state="dimbg_05"data-background-image="images/ioc_quality/g2_haystack_needle.png" data-background-color="black" data-background-size="90%" data-background-transition="none">
+							<div class="overl" style="padding-bottom:10px">
+								<h1>IOC</h1>
+								<blockquotecite="https://en.wikipedia.org/wiki/Indicator_of_compromise">
+									<small>&ldquo;Indicator of compromise (IOC) — in computer forensics is</small> </br>
+									an artifact observed on a network or in an operating system that with high confidence indicates a computer intrusion.&rdquo;
+								</blockquote>
+
+							</div>
+					</section>
+
+					<section data-background-image="images/ioc_quality/g2_haystack_needle_needle_highlighted.png" data-background-color="black" data-background-size="90%" data-background-transition="none">
+						<div class="overlayleft">
+							<h1><i>"An artifact</i></h1>
+							<small><i>...observed on a network or in an operating system that with high confidence indicates a computer intrusion."</i></small>
+						</div>
+				 	</section>
+
+				 	<section data-background-image="images/ioc_quality/g2_haystack_needle_haystack_highlighted.png" data-background-color="black" data-background-size="90%" data-background-transition="none">
+						<div class="overlayright">
+							<small><i>"An artifact...</i></small>
+						 	<h1><i>observed on a network or in an operating system</i></h1>
+						 	<small><i>...that with high confidence indicates a computer intrusion."</i></small>
+					 	</div>
+					</section>
+					<section data-background-image="images/ioc_quality/g2_haystack_needle_haystack_highlighted.png" data-background-color="black" data-background-size="90%" data-background-transition="none">
+						<div class="overl" style="padding-top:100px; padding-bottom:100px">
+							<h3 style="color:#40FF00;">#1</h3>
+							<h1 style="color:#40FF00;">The needle needs to be in the haystack.</h1>
+							<small>(Do not forget to take <b>traceability, manipularity and persistance</b> into account!)</small>
+						</div>
+				 	</section>
+					<section data-state="dimbg_05" data-background-image="images/ioc_quality/g2_confidence.png" data-background-color="black" data-background-size="80%" data-background-transition="none">
+						<div class="overl">
+							<small><i>"An artifact observed on a network or in an operating system...</i></small>
+							<h1><i>that with high confidence</i></h1>
+							<small><i>...indicates a computer intrusion."</i></small>
+						</div>
+			 		</section>
+
+				 	<section data-state="dimbg_05" data-background-image="images/ioc_quality/g2_confidence.png" data-background-color="black" data-background-size="80%" data-background-transition="none">
+						<div class="overl">
+							<h1>High confidence?</h1>
+					 	</div>
+					</section>
+
+					<section data-background-image="images/ioc_quality/g2_confidence.png" data-background-color="black" data-background-size="80%" data-background-transition="none">
+						<img src="images/meme/the_more_confidence_the_less_you_see.png" class="fragment"></img>
+					</section>
+					<section data-background-image="images/ioc_quality/g2_confidence.png" data-background-color="black" data-background-size="80%" data-background-transition="none">
+						<div class="overl" style="padding-top:100px; padding-bottom:100px">
+							<h3 style="color:#40FF00;">#2</h3>
+							<h1 style="color:#40FF00;">The minimal confidence</br>depends on the use-case.</h1>
+						</div>
+			 		</section>
+
+				 	<section data-state="dimbg_05" data-background-image="images/ioc_quality/ti_td_ioc_alert.png" data-background-color="black" data-background-size="80%" data-background-transition="none">
+						<div class="overl">
+							<small><i>"An artifact observed on a network or in an operating system that with high confidence...</i></small>
+						 	<h1><i>...indicates a computer intrusion."</i></h1>
+						 	<!--<img src="images/meme/captain_obvious.jpg"></img>-->
+					 	</div>
+					</section>
+
+					<section data-state="dimbg_05" data-background-image="images/ioc_quality/ti_td_ioc_alert.png" data-background-color="black" data-background-size="80%" data-background-transition="none">
+						<div class="overl">
+							<h1>A computer intrusion</h1>
+							<small>There are dozens of ways to classify them</br>(I will not explain them here)<br/><i>(And I do not know them all)</i></small>
+						</div>
+					</section>
+					<section data-state="dimbg_05" data-background-image="images/ioc_quality/ti_td_ioc_alert.png" data-background-color="black" data-background-size="80%" data-background-transition="none">
+						<div class="overl">
+							<h1>Instead :</h1>
+							<h3>Simply let us take a look on how an IoC gets born.</h3>
+						</div>
+					</section>
+					<section data-background-image="images/ioc_quality/ti_td_ioc_alert.png" data-background-color="black" data-background-size="80%" data-background-transition="none">
+
+					</section>
+
+					<section data-background-image="images/ioc_quality/ti_td_ioc_alert_pwc_ip.png" data-background-color="black" data-background-size="80%" data-background-transition="none">
+						<img src="images/examples/185.29.8.211/pwc_report.jpeg" style="height:200px; margin-top: 500px; margin-right: 1200px;"></img>
+						<div class="overl fragment">
+								<h3 style="position: absolute;top: 190px; left: 38%; padding: 320px 320px 320px 320px; z-index:500; background-color: rgba(0, 0, 0, 0.94)">ALERT ON APT-IOC</br></br>What happens now?</h3>
+						</div>
+						<div class="overl fragment">
+								<img style="position: absolute;top: 190px; left: 38%; z-index:500; background-color: rgba(0, 0, 0, 0.94)" src="images/meme/hunting.png"></img>
+						</div>
+					</section>
+
+					<section data-state="dimbg_08" data-background-image="images/ioc_quality/ti_td_ioc_alert_pwc_ip.png" data-background-color="black" data-background-size="80%" data-background-transition="none">
+						<div class="overl">
+							<h3>What if...</h3>
+							<h3><text style="color:#0099ff;">185.29.8.211</text> is a TOR exit node?</h3> <img src="images/icons/Tor_project_logo_hq.png" style="height:80px; background-color:white;"></img>
+							<h3 class="fragment"><text style="color:red">The threat-level does not fit!</text></h3>
+						</div>
+					</section>
+					<section data-state="dimbg_095" data-background-image="images/ioc_quality/forbes_tor.png" data-background-color="black" data-background-size="80%" data-background-transition="none">
+						<!--Sources:
+						https://www.forbes.com/sites/leemathews/2017/01/27/what-is-tor-and-why-do-people-use-it/print/
+					-->
+					</section>
+					<section data-state="dimbg_095" data-background-image="images/ioc_quality/tor_overload_large_botnet.png" data-background-color="black" data-background-size="75%" data-background-transition="none">
+						<!--Sources:
+						http://blog.trendmicro.com/trendlabs-security-intelligence/defending-against-tor-using-malware-part-1/
+						https://blog.fox-it.com/2013/09/05/large-botnet-cause-of-recent-tor-network-overload/
+					-->
+					</section>
+
+
+					<section data-state="dimbg_02" data-background-image="images/ioc_quality/ti_td_ioc_alert_pwc_ip.png" data-background-color="black" data-background-size="80%" data-background-transition="none">
+						<div class="overl" style="padding-top:100px; padding-bottom:100px">
+							<h3 style="color:#40FF00;">#3</h3>
+							<h1 style="color:#40FF00;">If an IOC is not threat-specific,</br>we are wasting resources.</h1>
+						</div>
+					</section>
+
+					<section>
+
+						<h3>C:\Users\peter.mueller\AppData\Temp\weorbwoier.docx</h3>
+						<h1>Good IOC?</h1>
+						<h1 class="fragment" data-fragment-index="1">Better:</h1>
+						<h3 class="fragment" data-fragment-index="1">C:\Users\<text style="color:red">%USERNAME%</text>\AppData\Temp\weorbwoier.docx</h3>
+
+						<h1 class="fragment" data-fragment-index="2">Better-Better:</h1>
+						<h3 class="fragment" data-fragment-index="2"><text style="color:red">%APPDATA%</text>\Temp\weorbwoier.docx</h3>
+
+						<small class="fragment" data-fragment-index="2"> (environment specific values)</small>
+
+
+					</section>
+
+					<section>
+						<h3>C:\Windows\system32\bad.dll</h3>
+						<h1>Good IOC?</h1>
+						<h1 class="fragment" data-fragment-index="1">Better:</h1>
+						<h3 class="fragment" data-fragment-index="1">C:\Windows\<text style="color:red">system32</text>\bad.dll</h3>
+						<h3 class="fragment" data-fragment-index="1">C:\Windows\<text style="color:red">SysWoW64</text>\bad.dll</h3>
+						<small class="fragment" data-fragment-index="1"> (environment specific values: os-specific values)</small>
+						<!-- File System Redirector: https://msdn.microsoft.com/en-us/library/windows/desktop/aa384187(v=vs.85).aspx -->
+					</section>
+
+					<section>
+						<h3>C:\Windows\system32\QWIEHQIOWEHQ2E3H4IQOWE.dll</h3>
+						<h1>Good IOC?</h1>
+						<h1 class="fragment" data-fragment-index="1">Better?:</h1>
+						<h3 class="fragment" data-fragment-index="1">C:\Windows\system32\<text style="color:red">{32-DIGITS_ENTROPY>0.8}.dll</text></h3>
+						<h3 class="fragment" data-fragment-index="1">C:\Windows\SysWoW64\<text style="color:red">{32-DIGITS_ENTROPY>0.8}.dll</text></h3>
+						<small class="fragment" data-fragment-index="1"> (detect auto-generated values)</small>
+					</section>
+
+					<!--
+					<section>
+						<h3>HKLM <text style="color:red">%USERNAME%</text></h3>
+						<h3 class="fragment">C:\Users\<text style="color:red">%USERNAME%</text>\AppData\Temp\weorbwoier.docx</h3>
+					</section>
+					-->
+
+
+					<section data-state="dimbg_05" data-background-image="images/ioc_quality/ti_td_ioc_alert_pwc_ip.png" data-background-color="black" data-background-size="80%" data-background-transition="none">
+						<div class="overl" style="padding-top:100px; padding-bottom:100px">
+							<h3 style="color:#40FF00;">#4</h3>
+							<h1 style="color:#40FF00;">Try to normalize/generalize system/runtime specific attributes.</h1>
+						</div>
+					</section>
+
+
+					<section data-state="dimbg_05" data-background-image="images/ioc_quality/g2_haystack_needle_confidence_together.png" data-background-color="black" data-background-size="60%" data-background-transition="none">
+						<div class="overl">
+							<h1>Summary</h1>
+							<h3>So for now: The best IOC <small>(needle)</small>...</h3>
+							<ul>
+								<li>#1 ...could be [<text style="color:#40FF00">technically found</text>] in my input data.</li>
+								<li>#2 ...has the [<text style="color:#40FF00">use-case related confidence</text>] to deal with the hits.</li>
+								<li>#3 ...needs to be [<text style="color:#40FF00">threat-specific</text>] to generate the best detection rate on same effort.</li>
+								<li>#4 ...has the best [<text style="color:#40FF00">system/runtime independent</text>] verifiability.</li>
+						</div>
+				 </section>
+				</section>
+
+
+
+				<section id="examples">
+					<section data-state="dimbg_08"data-background-image="images/examples/8523276256_a5ef174bfe_k.jpg" data-background-color="black" data-background-size="100%" data-background-transition="none">
+						<div class="overl">
+							<h1>Real-World Examples</h1>
+						</div>
+					</section>
+					<section data-state="dimbg_08"data-background-image="images/examples/8523276256_a5ef174bfe_k.jpg" data-background-color="black" data-background-size="100%" data-background-transition="none">
+						<div class="overl">
+
+							<table>
+								<tr>
+									<td>Input</td>
+									<td><a target="_blank" href="http://malc0de.com/database/">Malc0de</a> (Domains only)</td>
+								</tr>
+								<tr>
+									<td>Date</td>
+									<td>July 2017</td>
+								</tr>
+								<tr>
+									<td>Use-Case</td>
+									<td>Rate potential IoC list</td>
+								</tr>
+								<tr>
+									<td>Detection capabilities</td>
+									<td>DNS-Logs / FW-Logs</td>
+								</tr>
+								<tr>
+									<td>Required confidence level</td>
+									<td>Medium (Goal: Alert potential infections in SIEM)</td>
+								</tr>
+							</table>
+
+						</div>
+					</section>
+					<section data-state="dimbg_08"data-background-image="images/examples/8523276256_a5ef174bfe_k.jpg" data-background-color="black" data-background-size="100%" data-background-transition="none">
+						<div class="overl">
+							<img src="images/examples/example_siem_alerts/sourceforge/malc0de_com.png"></img>
+						</div>
+					</section>
+
+					<section data-state="dimbg_095"data-background-image="images/examples/example_siem_alerts/sourceforge/siem_alerts_malc0de_snip.png" data-background-color="black" data-background-size="90%" data-background-transition="none">
+
+					</section>
+					<section data-state="dimbg_095"data-background-image="images/examples/example_siem_alerts/sourceforge/malc0de_chain_intelmq.png" data-background-color="black" data-background-size="90%" data-background-transition="none">
+
+					</section>
+					<section data-state="dimbg_095"data-background-image="images/examples/example_siem_alerts/sourceforge/ip_is_ntp_coll.png" data-background-color="black" data-background-size="65%" data-background-transition="none">
+
+					</section>
+
+					<section data-state="dimbg_08"data-background-image="images/algorithm/4257452000_d375d9f2a6_o.jpg" data-background-color="black" data-background-size="100%" data-background-transition="none">
+						<div class="overl">
+							<h1>How to resolve it in the scoring system?</h1>
+						</div>
+					</section>
+
+					<section data-state="dimbg_08"data-background-image="images/algorithm/4257452000_d375d9f2a6_o.jpg" data-background-color="black" data-background-size="100%" data-background-transition="none">
+
+						<div class="overl">
+							<text style="color:#b8fefc">$S_{Total}(t) = \sum\nolimits_{i=1}^{N} S_Q(q_i,t)$</text>
+							<br/>
+							</br>
+
+							$t=$ 2.5.72.15<br/>
+							$q=$ 'is_well_known_ip'
+
+							<br/><br/>
+
+							<text style="color:#b8fefc">$S_Q(q,t) = W_Q(q) * S_{D}(t,q)  * S_{C}(t,q)$</text>
+
+							<br/><br/>
+
+							$W_Q(q)= -50$
+							<br/><br/>
+							$S_{D}(t,q)=\frac{1}{\sqrt{(1 * 3)}}$ (using <text style="color:#b8fefc">$ P(q,d)=$<small>$\left\{\begin{array}{@{}ll@{}}
+									\frac{S_{Time}}{\sqrt{(S_{Rel} * S_{Cre})}}, & \text{if the data source }d \text{ can answer question }q \\
+									0, & \text{else} \\
+							\end{array}\right.$)</small></text>
+							<br/><br/>
+							$S_{C}(t,q)=1$ (using <text style="color:#b8fefc">$ P(q,d)=$<small>$\left\{\begin{array}{@{}ll@{}}
+									1, 	& \text{if } W_Q(q) < 0 \text{ because neg. scores are important,} \\
+											& \text{independent from the detection capabilities} \\
+									1, 	& \text{if the answer on question } q \text{ is not specific enough} \\
+											& \text{to do a further scoring on any } c \in C \\
+									\max_{i=1}^N (S_{AV}(c_i,q) * S_{CC}(c_i,q)), & \text{else}
+							\end{array}\right.$)</small></text>
+							<br/><br/>
+
+						</div>
+					</section>
+
+					<section data-state="dimbg_08"data-background-image="images/algorithm/4257452000_d375d9f2a6_o.jpg" data-background-color="black" data-background-size="100%" data-background-transition="none">
+
+						<div class="overl">
+
+							<text style="color:#b8fefc">
+								$t=$ 2.5.72.15
+								<br/>
+								$q=$ 'is_well_known_ip'
+								<br/>
+								<br/>
+								$S_Q(q,t) = -50 *  \frac{1}{\sqrt{(1 * 3)}} * 1) \approx -28.87$
+
+								<br/><br/>
+								No other question has been answered.</text>
+								<br/><br/>
+
+							<div clasS="fragment">
+							--> FP can be prevented not using negative scored traces.
+							</div>
+						</div>
+
+					</section>
+
+					<section data-state="dimbg_08"data-background-image="images/examples/2017-06_petya/petya_news.jpg" data-background-color="black" data-background-size="75%" data-background-transition="none">
+						<div class="overl">
+
+							<table>
+								<tr>
+									<td>Input</td>
+									<td><b><a target="_blank" href="https://www.theguardian.com/technology/2017/jun/27/petya-ransomware-cyber-attack-who-what-why-how">Petya</a></b> (IPs only)</td>
+								</tr>
+								<tr>
+									<td>Date</td>
+									<td>April/May 2017</td>
+								</tr>
+								<tr>
+									<td>Use-Case</td>
+									<td>Rate potential IoC list</td>
+								</tr>
+								<tr>
+									<td>Detection capabilities</td>
+									<td>FW-Logs</td>
+								</tr>
+								<tr>
+									<td>Required confidence level</td>
+									<td>High (Goal: Block entire traffic on FW)</td>
+								</tr>
+							</table>
+
+						</div>
+					</section>
+
+					<section data-markdown>
+						<textarea data-template>
+							| IP              | Malicious URL                                                |
+							|-----------------|--------------------------------------------------------------|
+							| 82.194.84.27    | http://portofalgeciras.com/media/zoo/Scan-52995954679/       |
+							| 67.225.211.76   | http://timberlinebaptist.org/Rechnungs-Details-W-561-SR3551/ |
+							| 80.150.6.143    | http://bluemount.de/Rechnung-TCJ-915-M6014/                  |
+							| 24.38.26.131    | http://www2.wall.k12.nj.us/Rechnungs-Details-99048630008/    |
+							| 82.195.224.107  | http://tomassauter.com/lang/fr/Rechnung-84395864693/         |
+							| 111.67.28.5     | http://studiobliss.com.au/Rechnungs-Details-69681192181/     |
+							| 192.254.202.59  | http://blkfalcon.com/Rechnung-Q-043-GYS0294/                 |
+							| 84.16.92.53     | http://halounet.net/paranormal/Rech-50202765053/             |
+							| 46.243.158.31   | http://showoffimports.nl/Rechnungs-Details-21477159658/      |
+							| 91.225.29.70    | http://frankbruk.pl/Rech-RZXZ-862-UAN9105/                   |
+							| [...] | [...]                       |
+						</textarea>
+					</section>
+
+					<section>
+						<h3>Is <text style="color:#0099ff;">80.150.6.143</text> a good IoC?</h3>
+						(<a target="_blank" href="http://bluemount.de/Rechnung-TCJ-915-M6014/">http://bluemount.de/Rechnung-TCJ-915-M6014/</a>)
+					</section>
+
+					<section data-state="dimbg_095" data-background-image="images/examples/2017-06_petya/80.150.6.143/coll/Folie1.jpg" data-background-color="black" data-background-size="70%" data-background-transition="none">
+					</section>
+					<section data-state="dimbg_095" data-background-image="images/examples/2017-06_petya/80.150.6.143/coll/Folie2.jpg" data-background-color="black" data-background-size="70%" data-background-transition="none">
+						<h3>Block <text style="color:#0099ff;">80.150.6.143</text>?</h3>
+						(<a target="_blank" href="http://bluemount.de/Rechnung-TCJ-915-M6014/">http://bluemount.de/Rechnung-TCJ-915-M6014/</a>)
+					</section>
+
+					<!--
+					<section data-markdown>
+						<div class="overl">
+							<textarea data-template>
+									- McAfee
+										- Bad mail rating
+									- IBM X-Force
+										- Anonymization + Malware
+									- Ransomware tracker
+										- Locky distribution
+									- Spamhaus
+										- Locky distribution
+
+									<span style="color:#f44242;" class="fragment">Block it?</span>
+							</textarea>
+						</div>
+					</section>
+				-->
+
+
+<!--					# ToDo: Background with legitimate domains (see file 2017-06-28_petya_80.150.6.143_uniq_domains.txt)-->
+
+					<section data-state="dimbg_05" data-background-image="images/examples/2017-06_petya/80.150.6.143/coll/Folie3.jpg" data-background-color="black" data-background-size="90%" data-background-transition="none" data-markdown>
+						<div>
+
+							<textarea data-template>
+								<span style="color:#0099ff;">80.150.6.143</span>
+
+								- Contains more than <span style="font-size:larger; color:#ffa5a5;">100.000 (mostly _legitimate_) Domains</span>
+								- Hosting operated by <span style="font-size:larger; color:#ef39ce;">Deutsche Telekom AG (P&I)</span>
+
+
+								![damn_it](images/meme/own_hosting_company_on_blacklist.png "Blocked own hosting company")
+
+							</textarea>
+						</div>
+
+					</section>
+					<section data-state="dimbg_08"data-background-image="images/algorithm/4257452000_d375d9f2a6_o.jpg" data-background-color="black" data-background-size="100%" data-background-transition="none">
+						<div class="overl">
+							<h1>How to resolve it in the scoring system?</h1>
+						</div>
+					</section>
+
+					<section data-state="dimbg_08"data-background-image="images/algorithm/4257452000_d375d9f2a6_o.jpg" data-background-color="black" data-background-size="100%" data-background-transition="none">
+
+						<div class="overl">
+							<text style="color:#b8fefc">$S_{Total}(t) = \sum\nolimits_{i=1}^{N} S_Q(q_i,t)$</text>
+							<br/>
+							</br>
+
+							$t=$ 80.150.6.143<br/>
+							$q=$ 'is_multihoster'
+
+							<br/><br/>
+
+							<text style="color:#b8fefc">$S_Q(q,t) = W_Q(q) * S_{D}(t,q)  * S_{C}(t,q)$</text>
+
+							<br/><br/>
+
+							$W_Q(q)= -40$
+							<br/><br/>
+							$S_{D}(t,q)=\frac{0.9}{\sqrt{(1 * 2)}}$ (using <text style="color:#b8fefc">$ P(q,d)=$<small>$\left\{\begin{array}{@{}ll@{}}
+									\frac{S_{Time}}{\sqrt{(S_{Rel} * S_{Cre})}}, & \text{if the data source }d \text{ can answer question }q \\
+									0, & \text{else} \\
+							\end{array}\right.$)</small></text>
+							<br/><br/>
+							$S_{C}(t,q)=1$ (using <text style="color:#b8fefc">$ P(q,d)=$<small>$\left\{\begin{array}{@{}ll@{}}
+									1, 	& \text{if } W_Q(q) < 0 \text{ because neg. scores are important,} \\
+											& \text{independent from the detection capabilities} \\
+									1, 	& \text{if the answer on question } q \text{ is not specific enough} \\
+											& \text{to do a further scoring on any } c \in C \\
+									\max_{i=1}^N (S_{AV}(c_i,q) * S_{CC}(c_i,q)), & \text{else}
+							\end{array}\right.$)</small></text>
+							<br/><br/>
+
+						</div>
+					</section>
+
+					<section data-state="dimbg_08"data-background-image="images/algorithm/4257452000_d375d9f2a6_o.jpg" data-background-color="black" data-background-size="100%" data-background-transition="none">
+
+						<div class="overl">
+
+							<text style="color:#b8fefc">
+								$t=$ 80.150.6.143<br/>
+								$q=$ 'is_multihoster'
+								<br/>
+								<br/>
+								$S_Q(q,t) = -40 *  \frac{0.9}{\sqrt{(1 * 2)}} * 1) \approx -25.46$
+
+								<br/><br/>
+								<div class="fragment">
+									And the other questions?</text>
+									<br/><br/>
+								</div>
+
+						</div>
+
+					</section>
+					<section data-state="dimbg_08"data-background-image="images/algorithm/4257452000_d375d9f2a6_o.jpg" data-background-color="black" data-background-size="100%" data-background-transition="none">
+						<img style="height:850px" src="images/examples/2017-06_petya/example_calc_excel_80.153.6.143.png"/>
+					</section>
+
+
+										<section data-state="dimbg_08"data-background-image="images/examples/cat_pwc_ips.png" data-background-color="black" data-background-size="90%" data-background-transition="none">
+											<div class="overl">
+
+												<table>
+													<tr>
+														<td>Input</td>
+														<td><a target="_blank" href="https://www.pwc.co.uk/issues/cyber-security-data-privacy/insights/operation-cloud-hopper.html">PWC/BAE APT-Report "Operation Cloud Hopper"</a> (IPs only)</td>
+													</tr>
+													<tr>
+														<td>Date</td>
+														<td>April/May 2017</td>
+													</tr>
+													<tr>
+														<td>Use-Case</td>
+														<td>Rate potential IoC list</td>
+													</tr>
+													<tr>
+														<td>Detection capabilities</td>
+														<td>FW-Logs</td>
+													</tr>
+													<tr>
+														<td>Required confidence level</td>
+														<td>High (Goal: Block entire traffic)</td>
+													</tr>
+												</table>
+
+											</div>
+										</section>
+										<section data-state="dimbg_08"data-background-image="images/examples/cat_pwc_ips.png" data-background-color="black" data-background-size="90%" data-background-transition="none">
+											<div class="overl">
+												<h3>Remember the TOR exit node <text style="color:#0099ff;">185.29.8.211</text>?</h3> <img src="images/icons/Tor_project_logo_hq.png" style="height:80px; background-color:white;"></img>
+												<h3 class="fragment">There are two more of it inside.</h3>
+											</div>
+										</section>
+
+										<section data-state="dimbg_095"data-background-image="images/examples/pwc_reports/diagram_pwc_report.001.jpeg" data-background-color="black" data-background-size="75%" data-background-transition="none">
+										</section>
+
+										<section data-state="dimbg_095"data-background-image="images/examples/pwc_reports/diagram_pwc_report_marked.jpeg" data-background-color="black" data-background-size="75%" data-background-transition="none">
+
+											<!--
+												DUL / DUHL:
+													DUHL entries: Dynamically Allocated hosts/networks (your IP is not fixed - even if you have kept the IP for over a year)
+													http://www.sorbs.net/listing/aboutlistings.shtml
+													Example: http://reputationauthority.org/lookup?ip=172.246.160.83
+												Policy Block List (PBL)
+													This IP address range has been identified by Spamhaus as not meeting our policy for IP addresses permitted to deliver unauthenticated 'direct-to-mx' email to PBL users.
+													The PBL database lists end-user IP address ranges which should not be delivering unauthenticated email to any mail server except those provided for specifically for that customer's use.
+													https://www.spamhaus.org/pbl/query/PBL281116
+													Example: http://reputationauthority.org/lookup?ip=60.10.1.121
+
+												Leaked infrastructure by HBGary (119.167.225.38, 119.167.225.44, 123.183.210.26)
+												https://wikileaks.org/hbgary-emails/emailid/22556
+
+											-->
+											<div class="overl fragment">
+												<img style="" src="images/examples/pwc_reports/passivedns/109.237.108.202_passive_dns_detection.png"></img>
+											</div>
+											<div class="overl fragment">
+												<img src="images/examples/pwc_reports/passivedns/109.237.108.202_google_search_results.png"></img>
+											</div>
+										</section>
+										<section data-state="dimbg_095"data-background-image="images/examples/pwc_reports/diagram_pwc_report_marked.jpeg" data-background-color="black" data-background-size="75%" data-background-transition="none">
+										</section>
+
+
+										<section data-state="dimbg_095" data-background-image="images/examples/pwc_reports/hb_gary/collection.jpg" data-background-color="black" data-background-size="70%" data-background-transition="none">
+											<div class="transp_bottom">
+												</br>
+												- WikiLeaks <a target="_blank" href="https://wikileaks.org/hbgary-emails/">published 60.000 mails of HBGary in 11/2016</a> <br/> <br/>
+												- <a target="_blank" href="https://en.wikipedia.org/wiki/HBGary">HBGary</a> did a security audit at <a target="_blank" href="https://www.qinetiq-na.com/">QinetQ North America</a>
+											</div>
+										</section>
+
+										<section data-state="dimbg_095" data-background-image="images/examples/pwc_reports/hb_gary/collection.jpg" data-background-color="black" data-background-size="70%" data-background-transition="none">
+											<div class="transp_top">
+												</br>
+												- <a target="_blank" href="https://en.wikipedia.org/wiki/HBGary">HBGary</a> found several infected systems and lists <span style="color:red"><br/>119.167.225.38<br/>119.167.225.44<br/>123.183.210.26<br/></span>
+												as C2 infrastructure of targeted malware called <i>msomsysdm</i>
+												<br/><br/>
+												- <a target="_blank" href="https://www.pwc.co.uk/cyber-security/pdf/cloud-hopper-report-final-v4.pdf">PWC/BAE now</a> attributed them to chinese APT-10
+											</div>
+										</section>
+
+					<!--
+					<section data-state="dimbg_08"data-background-image="images/examples/2017-06_hidden_cobra/hidden_cobra_us_cert.jpeg" data-background-color="black" data-background-size="100%" data-background-transition="none">
+						<div class="overl">
+
+							<table>
+								<tr>
+									<td>Input</td>
+									<td><b><a target="_blank" href="https://www.us-cert.gov/ncas/alerts/TA17-164A">Hidden Cobra</a></b> (IPs only)</td>
+								</tr>
+								<tr>
+									<td>Date</td>
+									<td>June 2017</td>
+								</tr>
+								<tr>
+									<td>Use-Case</td>
+									<td>Rate potential IoC list</td>
+								</tr>
+								<tr>
+									<td>Detection capabilities</td>
+									<td>Firewall</td>
+								</tr>
+								<tr>
+									<td>Required confidence level</td>
+									<td>? (Goal: X)</td>
+								</tr>
+							</table>
+
+						</div>
+					</section>
+					-->
+				</section>
+
+				<section id="backup_0">
+					<section data-state="dimbg_08" data-background-image="images/algorithm/8278623046_60f1ef279d_k.jpg" data-background-color="black" data-background-size="100%" data-background-transition="none">
+						<div class="overl">
+							<h1>BACKUP: <br/>Taxonomies, Threat-Levels...</h1>
+						</div>
+					</section>
+					<section data-state="dimbg_08" data-background-image="images/algorithm/8278623046_60f1ef279d_k.jpg" data-background-color="black" data-background-size="100%" data-background-transition="none">
+						<!-- https://www.flickr.com/photos/duncanh1/8278623046/ -->
+						<div class="overl">
+							<h1>Taxonomies</h1>
+							- Reliability <br/>
+							- Credibility <br/>
+							- Threat levels
+						</div>
+					</section>
+
+					<section data-state="dimbg_03" data-markdown data-background-image="images/algorithm/8278623046_60f1ef279d_k.jpg" data-background-color="black" data-background-size="100%" data-background-transition="none">
+							<!-- https://www.flickr.com/photos/aidank_fotos/8278623046/ -->
+							<textarea data-template>
+								# The Admiralty Code (NATO System)
+
+								| Reliability                      | Credibility                    |   |   |
+								|----------------------------------|--------------------------------|---|---|
+								| A - Completely reliable          | 1 - Confirmed by other sources |   |   |
+								| B - Usually reliable             | 2 - Probably true              |   |   |
+								| C - Fairly reliable              | 3 - Possibly true              |   |   |
+								| D - Not usually reliable         | 4 - Doubtful                   |   |   |
+								| E - Unreliable                   | 5 - Improbable                 |   |   |
+								| F - Reliability cannot be judged | 6 - Truth cannot be judged     |   |   |
+								<!--
+								<q cite="https://en.wikipedia.org/wiki/Admiralty_code">A source is assessed for <b>reliability</b> based on a technical assessment of its capability, or in the case of Human Intelligence sources their history. <br/>
+								An item is assessed for <b>credibility</b> based on likelihood and levels of corroboration by other sources.</q>
+								-->
+							</textarea>
+					</section>
+
+					<section data-state="dimbg_03" data-markdown data-background-image="images/algorithm/8278623046_60f1ef279d_k.jpg" data-background-color="black" data-background-size="100%" data-background-transition="none">
+						<!-- https://www.flickr.com/photos/aidank_fotos/8278623046/ -->
+						<textarea data-template>
+								# Threat Levels
+
+								| Level         | Info                                      |
+								|---------------|-------------------------------------------|
+								| 1 - High      | Sophisticated APT malware or 0-day attack |
+								| 2 - Medium    | APT malware                               |
+								| 3 - Low       | Mass-malware                              |
+								|               |                                           |
+								| 4 - Undefined | Risk level undefined/unknown              |
+
+						</textarea>
+
+						<!--
+						https://github.com/MISP/MISP/issues/729
+						-->
+
+					</section>
+
+					<section data-state="dimbg_03" data-background-image="images/algorithm/8278623046_60f1ef279d_k.jpg" data-background-color="black" data-background-size="100%" data-background-transition="none">
+						<h3>How to define <text style="color:green">Reliability</text>, <text style="color:#42e5f4">Credibility</text> and <text style="color:red">Threat Levels</text><br/>of an information about a digital trace?</h3>
+					</section>
+
+					<section data-state="dimbg_03" data-background-image="images/algorithm/8278623046_60f1ef279d_k.jpg" data-background-color="black" data-background-size="100%" data-background-transition="none">
+						<h3>Interpreted feeds</h3>
+							Most of them providing those information <br/>
+							<br/><br/>
+						<h3>Un-Interpreted feeds</h3>
+							Initial definition by analyst experience <br/>
+							Improvements are done via SoC feedback channel <br/>
+					</section>
+
+				</section>
+
+				<section id="backup_1">
+					<section data-state="dimbg_095" data-background-image="images/current_status_future_work/13906559772_3c328b89aa_h.jpg" data-background-color="black" data-background-size="100%" data-background-transition="none">
+						<div class="overl">
+							<h1>BACKUP: <br/>Current status</h1>
+						</div>
+					</section>
+
+						<!-- Photo by https://www.flickr.com/photos/andr3/13906559772/-->
+						<section data-state="dimbg_095" data-background-image="images/current_status_future_work/13906559772_3c328b89aa_h.jpg" data-background-color="black" data-background-size="100%" data-background-transition="none">
+							<div class="overl">
+								<h1>Current status / Further work</h1>
+							</div>
+						</section>
+
+						<section data-state="dimbg_095" data-background-image="images/current_status_future_work/issues.png" data-background-color="black" data-background-size="80%" data-background-transition="none">
+
+						</section>
+
+
+						<section data-state="dimbg_095" data-background-image="images/current_status_future_work/milestones.png" data-background-color="black" data-background-size="80%" data-background-transition="none">
+
+						</section>
+
+						<section data-markdown data-state="dimbg_02" data-background-image="images/current_status_future_work/milestones.png" data-background-color="black" data-background-size="80%" data-background-transition="none">
+							| From       	| To         	| Goals                                                 	|
+							|------------	|------------	|-------------------------------------------------------	|
+							| 2017-07-20 	| 2017-08-25 	| SANS GNFA Certification / Holiday/ Stabilize system   	|
+							| 2017-08-21 	| 2017-08-24 	| Presentation @ Uni    	|
+							| 2017-12-xx 	| 2017-12-yy 	| Guest lecture @ Uni2    	|
+							| 2017-08-28 	| 2017-11-31 	| IP scoring finished by 90%                            	|
+							| 2017-09-18 	| 2017-11-31 	| Felix implements web frontend for TI/CDC/CERT (alpha) 	|
+							| 2017-12-01 	| 2017-12-31 	| Integrate scoring for customer delivery               	|
+							| 2017-12-01 	| 2018-02-28 	| Finish thesis                                         	|
+						</section>
+
+				</section>
+				<section id="backup_2">
+					<section>
+						<div class="overl">
+							<h1>BACKUP: URLs</h1>
+							<small> (Domains/IPs inside)</small>
+						</div>
+					</section>
+
+					<section>
+						<h1>URLS</h1>
+						<h3>vs</h3>
+						<h1>DOMAINS</h1>
+					</section>
+
+					<section>
+						<p								 >- <u>twitter.com</u> is included in <u style="color:red;">Alexa Top1000</u> list of well-known and widely used <u style="color:red;">domain names</u></p>
+						<p class="fragment">- Using <u style="color:red;">twitter.com</u> as <u style="color:red;">IOC</u> is absolutely <u style="color:red;">useless</u></p>
+						<p class="fragment">- <u style="color:red;">Complete URLs</u> are <u style="color:red;">more specific</u> and <u style="color:red;">can be used</u> as IOC</p>
+					</section>
+
+					<section>
+						<h3>User-driven content</h3> <h5>vs</h5> <h3>Professionally-generated content</h3>
+						<small>(More context means more exceptions)</small>
+					</section>
+
+					<section>
+							Taking into account that <a target="_blank" href="https://zeltser.com/bots-command-and-control-via-social-media/">some attackers are using social networks for C&C purpose</a>,
+							</br>
+							<img style="height: 450px;" src="images/examples/user-driven-content/twitter_cnc/program_structure.png"></img>
+							<img style="height: 450px;" src="images/examples/user-driven-content/twitter_cnc/twitter_example.png"></img>
+							</br>
+							user-driven content has the ability to be a great IOC source.
+
+						</br> </br>
+							<h3 class="fragment">So how to filter them out?</h3>
+
+					</section>
+
+					<section>
+						<h3>Filter user-driven content</h3>
+						<ol>
+							<li>Gather information about (http/s) request structure of website</li>
+							<li>Black- / Whitelist approach</li>
+						</ol>
+
+						<p>(As annoying as it sounds... but let´s try)</p>
+					</section>
+
+					<section>
+						<h3>Blogs</h3>
+						<ul>
+							<li class="fragment" data-fragment-index="1"><text style="color: red;">{blog_name}</text>.blogspot.com</li>
+							<li class="fragment" data-fragment-index="1"><text style="color: red;">{blog_name}</text>.wordpress.com</li>
+							<li class="fragment" data-fragment-index="1"><text style="color: red;">{blog_name}</text>.typepad.com</li>
+						</ul><br/>
+						<small class="fragment" data-fragment-index="1">Free blog services <a target="_blank" href="http://www.gulli.com/news/5362-blogspotcom-google-ist-fuehrend-in-sachen-malware-hosting-2008-07-26">are well-known for malware distribution</a></small>
+					</section>
+
+					<section>
+						<h3>Torrents</h3>
+						<img src="images/examples/user-driven-content/torrent/torrent_directlink.png"></img>
+					</section>
+
+					<section>
+						<h3>Torrents</h3>
+						<img style="height:650px;" src="images/examples/user-driven-content/torrent/1337_torrent_directlink.png"></img>
+					</section>
+
+					<section>
+						<h3>Picture sharing</h3>
+						<ul>
+							<li>boards.4chan.org/g/thread/<text style="color: red;">{8_numeric_digits}</text></li> <!-- http://boards.4chan.org/g/thread/60633966 -->
+							<li>i.4cdn.org/g/<text style="color: red;">{numeric_digits}</text>.jpg</li> <!-- http://i.4cdn.org/g/1496013827046.jpg-->
+							<li>9gag.com/gag/<text style="color: red;">{6_chars}</text></li> <!-- https://9gag.com/gag/a4bmrDv -->
+						</ul>
+					</section>
+
+					<section>
+						<h3>File-Uploads</h3>
+						<ul>
+							<li>zippysharecom/v/<text style="color: red;">{8_chars}</text></li>
+							<li>uploaded.net/<text style="color: red;">{chars}</text></li>
+						</ul>
+					</section>
+
+					<section>
+						<h3>Code Sharing</h3>
+						<ul>
+							<li>stackoverflow.com/questions/<text style="color: red;">{numeric_id}</text>/</a></li>
+							<li><text style="color: red;">{subsite}</text>.stackexchange.com/questions/<text style="color: red;">{numeric_id}</text>/
+							<li class="fragment" data-fragment-index="1">github.com/<text style="color: red;">{user_name}</text>/<text style="color: red;">{project}</text>*</li>
+							<li class="fragment" data-fragment-index="1"><text style="color: red;">{user_name}</text>.github.io</li>
+							</ul><br/>
+						<p class="fragment" data-fragment-index="1">* with some exceptions (e.g. <a target="_blank" href="http://github.com/security/">github.com/security/</a>)</p>
+					</section>
+
+
+					<section>
+						<h1>Social Networks</h1>
+					</section>
+
+					<section data-background-image="images/examples/user-driven-content/facebook/0_inital_request.jpeg" data-background-color="black" data-background-size="90%" data-background-transition="none">
+
+					</section>
+					<section data-background-image="images/examples/user-driven-content/facebook/0_inital_request.jpeg" data-background-color="black" data-background-size="90%" data-background-transition="none">
+						<div style="padding-bottom:10px;padding-top:10px;" class="overl">
+							<h3>User-Driven</h3>
+						</div>
+					</section>
+
+					<section data-background-image="images/examples/user-driven-content/facebook/0_inital_request_groups.jpeg" data-background-color="black" data-background-size="90%" data-background-transition="none">
+
+					</section>
+					<section data-background-image="images/examples/user-driven-content/facebook/0_inital_request_groups.jpeg" data-background-color="black" data-background-size="90%" data-background-transition="none">
+						<div style="padding-bottom:10px;padding-top:10px;" class="overl">
+							<h3>(Mainly) Professionally-generated</h3>
+						</div>
+					</section>
+
+
+					<section data-background-image="images/examples/user-driven-content/facebook/1_css_request.jpeg" data-background-color="black" data-background-size="90%" data-background-transition="none">
+
+					</section>
+					<section data-background-image="images/examples/user-driven-content/facebook/1_css_request.jpeg" data-background-color="black" data-background-size="90%" data-background-transition="none">
+						<div style="padding-bottom:10px;padding-top:10px;" class="overl">
+							<h3>Professionally-generated</h3>
+						</div>
+					</section>
+
+					<section data-background-image="images/examples/user-driven-content/facebook/2_profile_picture.png" data-background-color="black" data-background-size="90%" data-background-transition="none">
+
+					</section>
+					<section data-background-image="images/examples/user-driven-content/facebook/2_profile_picture.png" data-background-color="black" data-background-size="90%" data-background-transition="none">
+						<div style="padding-bottom:10px;padding-top:10px;" class="overl">
+							<h3>User-Driven</h3>
+						</div>
+					</section>
+
+					<section data-background-image="images/examples/user-driven-content/facebook/3_permalink_post.png" data-background-color="black" data-background-size="90%" data-background-transition="none">
+
+					</section>
+					<section data-background-image="images/examples/user-driven-content/facebook/3_permalink_post.png" data-background-color="black" data-background-size="90%" data-background-transition="none">
+						<div style="padding-bottom:10px;padding-top:10px;" class="overl">
+							<h3>User-Driven</h3>
+						</div>
+					</section>
+					<section data-background-image="images/examples/user-driven-content/facebook/4_events.jpeg" data-background-color="black" data-background-size="90%" data-background-transition="none">
+
+					</section>
+					<section data-background-image="images/examples/user-driven-content/facebook/4_events.jpeg" data-background-color="black" data-background-size="90%" data-background-transition="none">
+						<div style="padding-bottom:10px;padding-top:10px;" class="overl">
+							<h3>(Multiple) User-Driven</h3>
+						</div>
+					</section>
+					<section>
+						<h3>User-driven vs Professionally-generated <br/> [Summary]</h3>
+						<ul>
+							<li class="fragment" data-fragment-index="1">Providing user-driven content is the main objective of all those providers*</li>
+							<li class="fragment" data-fragment-index="2">Separation of user content leads to simplicity</li>
+							<li class="fragment" data-fragment-index="2">(High separation between objectives leads to better detection)</li>
+							<li class="fragment" data-fragment-index="3">Provider fluctuation = maintenance effort</li>
+							<!--Specifically OCH -->
+							<li class="fragment" data-fragment-index="4">Once collected, these information are mostly durable!</li>
+							<!--Website linking (Blogs), Project dependencies (Github), Sites offering OCH-content (File uploading), Huge impact on site (4chan,9gag)-->
+						</ul>
+
+						<!--<div class="fragment" data-fragment-index="1"> *=<img style="height:200px" src="images/meme/orealy.jpg"</img></div>-->
+					</section>
+
+				</section>
+				</section>
+				<section id="backup_3">
+          <section data-state="dimbg_08" data-background-image="images/use_cases/g2_use_cases_0.png" data-background-color="black" data-background-size="80%" data-background-transition="none">
+              <div class="overl">
+                  <h1> Use Cases</h1>
+              </div>
+          </section>
+
+          <section id="use_cases" data-background-image="images/use_cases/g2_use_cases_0.png" data-background-color="black" data-background-size="80%" data-background-transition="none">
+
+          </section>
+
+          <section id="use_cases" data-background-image="images/use_cases/g2_use_cases_1.png" data-background-color="black" data-background-size="70%" data-background-transition="none">
+
+          </section>
+
+          <section id="use_cases" data-background-image="images/use_cases/g2_use_cases_2.png" data-background-color="black" data-background-size="80%" data-background-transition="none">
+
+          </section>
+
+
+				</section>
+				<section id="backup4">
+					<section data-state="dimbg_08" data-background-image="images/algorithm/4257452000_d375d9f2a6_o.jpg" data-background-color="black" data-background-size="100%" data-background-transition="none">
+						<div class="overl">
+							<h1>Scoring formula details</h1>
+						</div>
+					</section>
+
+
+					<section data-state="dimbg_03" data-background-image="images/algorithm/4257452000_d375d9f2a6_o.jpg" data-background-color="black" data-background-size="100%" data-background-transition="none">
+							<text style="color:#b8fefc">$S_Q(q,t) = W_Q(q) * S_{D}(t,q)  * S_{C}(t,q)$</text>
+							<br/><br/>
+							<hr>
+							<br/>
+							1. Question weight <text style="color:#b8fefc">$W_Q(q)$</text></i>
+							<br/><br/>
+							<hr>
+							<br/>
+								<div class="fragment">
+									2. The data sources evaluation score <text style="color:#b8fefc">$S_{D}(t,q)$</text>
+									<br/><br/>
+									<text style="color:#b8fefc">
+										$S_{D}(t,q)=$</text>$\left\{\begin{array}{@{}ll@{}}
+												P(q,D), & \text{if an answer exists using data sources } D \\
+										    0, 	& \text{else}\\
+										\end{array}\right.$
+									</text>
+									<br/><br/> <text style="color:#b8fefc">$P(q,D)$</text> expresses the probability for a correct answer.
+								</div>
+
+					</section>
+					<section data-state="dimbg_03" data-background-image="images/algorithm/4257452000_d375d9f2a6_o.jpg" data-background-color="black" data-background-size="100%" data-background-transition="none">
+						<div>
+							Due to the fact that <text style="color:#b8fefc">$D$</text> is a set of data sources (
+							 <text style="color:#b8fefc">$D=$</text><text style="color:#b8fefc">$\{d_1,d_2...\}$</text>),<br/>
+							the probability <text style="color:#b8fefc">$P(q,D)$</text> is defined* as <text style="color:#b8fefc">$\max_{i=1}^N P(q,d_i)$</text> for each <text style="color:#b8fefc">$d \in D$</text>
+							<br/><small>*There will be a <i>bonus</i> in case multiple sources match.</small>
+							<br/>
+						</div>
+						<br/>
+						<div class="fragment">
+								Each data source <text style="color:#b8fefc">$d$</text> <i>answers</i> with probability <text style="color:#b8fefc">$P(q,d)$</text> question <text style="color:#b8fefc">$q$</text>:
+								<br/>
+								<text style="color:#b8fefc">
+									$ P(q,d)=$</text>$\left\{\begin{array}{@{}ll@{}}
+									    \frac{S_{Time}}{\sqrt{(S_{Rel} * S_{Cre})}}, & \text{if the data source }d \text{ can answer question }q \\
+											0, & \text{else} \\
+									\end{array}\right.$
+
+							</div>
+							<div class="fragment">
+								<br/>
+								where <text style="color:#b8fefc">$\frac{S_{Time}}{\sqrt{(S_{Rel} * f(S_{Cre}))}}$</text> is defined as
+								<br/><br/>
+								<ul>
+								<li>
+									Time-Score <text style="color:#b8fefc">$S_{Time}$ $[0.0,0.1,...,1.0]$</text><br/>
+									<ul>
+										<li>In time-critical cases: <i>"The older the answer, the lower the score"</i></li>
+										<li>Otherwise: $1$
+									</ul>
+								</li>
+								<li>Reliability-Score <text style="color:#b8fefc">$S_{Rel}$ $\in \{1,2,...,6\}$</text> <br/></li>
+								<li>Credibility-Score* <text style="color:#b8fefc">$S_{Cre}$ $\in \{A,B,...,F\}$</text> with <text style="color:#b8fefc">$f:i \mapsto{y} \text{ where } (i,y) \in \{(A,6),(B,5)...(F,1)\}$</text></li>
+								<ul>
+								<small>* = NATO-Score</small>
+							</div>
+
+					</section>
+
+				</section>
+
+
+			</div>
+		</div>
+		<!-- REVEAL configuration -->
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+			// More info about config & dependencies:
+			// - https://github.com/hakimel/reveal.js#configuration
+			// - https://github.com/hakimel/reveal.js#dependencies
+
+			 <!-- ToDo: Use local copy of mathjax-->
+
+			Reveal.initialize({
+
+				showNotes: true,
+        slideNumber: true,
+				controls: true,
+				progress: true,
+				width: 2048,
+
+				math: {
+					mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js',
+					config: 'TeX-AMS_HTML-full'  // See http://docs.mathjax.org/en/latest/config-files.html
+				},
+
+				dependencies: [
+					{ src: 'plugin/math/math.js', async: true },
+					{ src: 'plugin/markdown/marked.js' },
+					{ src: 'plugin/markdown/markdown.js' },
+					{ src: 'plugin/notes/notes.js', async: true },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+				]
+			});
+		</script>
+	</body>
+</html>

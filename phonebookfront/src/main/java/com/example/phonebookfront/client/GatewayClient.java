@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@FeignClient(value = "phonebookmanager", url = "http://localhost:8080/phonebookmanager/users")
+@FeignClient(value = "phonebookmanager", url = "http://localhost:8083/phonebookmanager/users")
 public interface GatewayClient {
 
     @GetMapping()
