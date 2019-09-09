@@ -23,82 +23,6 @@
 	<!-- Theme used for syntax highlighting of code -->
 	<link rel="stylesheet" href="lib/css/monokai.css">
 
-	<style type="text/css">
-		html.dimbg_095 .slide-background.present {
-			opacity: 0.95 !important;
-		}
-
-		html.dimbg_08 .slide-background.present {
-			opacity: 0.8 !important;
-		}
-
-		html.dimbg_06 .slide-background.present {
-			opacity: 0.6 !important;
-		}
-
-		html.dimbg_05 .slide-background.present {
-			opacity: 0.5 !important;
-		}
-
-		html.dimbg_04 .slide-background.present {
-			opacity: 0.4 !important;
-		}
-
-		html.dimbg_03 .slide-background.present {
-			opacity: 0.2 !important;
-		}
-
-		html.dimbg_02 .slide-background.present {
-			opacity: 0.2 !important;
-		}
-
-		html.dimbg_01 .slide-background.present {
-			opacity: 0.1 !important;
-		}
-
-		.overl {
-			background-color: rgba(0, 0, 0, 0.9);
-		}
-
-		.overlaybottom {
-			background-color: rgba(0, 0, 0, 0.9);
-			margin-bottom: 20% !important;
-		}
-
-		.overlaytop {
-			background-color: rgba(0, 0, 0, 0.9);
-			margin-top: 20% !important;
-		}
-
-		.overlayleft {
-			background-color: rgba(0, 0, 0, 0.9);
-			margin-right: 50% !important;
-		}
-
-		.overlayright {
-			background-color: rgba(0, 0, 0, 0.9);
-			margin-left: 50% !important;
-		}
-
-		.transp_bottom {
-			position: absolute;
-			left: 0;
-			top: 350px;
-			background: rgba(0, 0, 0, .8);
-			height: 1000px;
-			width: 100%;
-		}
-
-		.transp_top {
-			position: absolute;
-			left: 0;
-			top: -600px;
-			background: rgba(0, 0, 0, .8);
-			height: 600px;
-			width: 100%;
-		}
-	</style>
-
 
 	<!-- Printing and PDF exports -->
 	<script>
@@ -154,66 +78,207 @@
 			</section>
 
 			<section>
-				<section style="vertical-align:text-top">
+				<section style="vertical-align:text-top; width: 90%; height: 90%">
 					<img src="images/CNCF_TrailMap_top.png">
 				</section>
-				<section style="vertical-align:text-top">
+				<section style="vertical-align:text-top; width: 90%; height: 90%">
 
 					<img src="images/CNCF_TrailMap_bottom.png">
+					<small>
+						<sup class=superscript style="font-size: 50%">Ref: <a
+								href="https://github.com/cncf/trailmap">CNCF Trailmap</a><br>
+						</sup>
+					</small>
 				</section>
 			</section>
 
-
 			<section>
-				<h1>Observability</h1>
-				<p>Definition avec quote de Bourgon</p>
-			</section>
+				<section>
+					<h3>Observability</h3>
+					<p>Definition avec quote de Bourgon</p>
+				</section>
 
-			<section>
-				<h1>Observability</h1>
-				<p>Definition avec quote de Bourgon</p>
-			</section>
+				<section data-background="images/close-up-coding-contemporary-1342460.jpg"
+					data-background-opacity="0.4">
+					<div style="font-size: 75%">
+						The behavior of a system can be determined by only looking at its inputs and outputs.
+					</div>
+					<blockquote style="color:#40FF00; width: 80%">
+						In control theory, <u>observability</u> is a measure of how well internal states of a system can
+						be
+						inferred from knowledge of its external outputs.
+					</blockquote>
+					<div style="text-align: right;">
 
-			<section>
-				<h1 style="color:#40FF00;">Observability</h1>
-				<p>Focal Area figure from Bourgon</p>
-
-				<div style="width: 40%; display: inline-block; vertical-align: text-bottom;">
-					<p>
 						<small>
-							<sup class=superscript>Ref: <a
-									href="https://peter.bourgon.org/blog/2017/02/21/metrics-tracing-and-logging.html">Peter
-									Bourgon</a></sup>
+							<sup class=superscript style="font-size: 50%">Ref: <a
+									href="https://en.wikipedia.org/wiki/Observability">Wikipedia</a></sup>
+						</small>
+					</div>
+					<div style="font-size: 75%">
+						Observability is about producing/transmitting/recording data.
+					</div>
+				</section>
+
+				<section data-background="#fff">
+
+
+					<div style="float: left; width: 55%; margin-top: 1em">
+						<ul>
+							<li> Logs:
+								<div>
+									<small>
+										<minor>Easy to grep, to read and produces a high volume of data</minor>
+									</small>
+								</div>
+
+							<li> Metrics:
+								<div>
+									<small>
+										<minor>Identify trends over time, are visualize through graphs and produce low
+											volumes.</minor>
+									</small>
+								</div>
+
+							<li> Distributed traces:
+								<div>
+									<small>
+										<minor>Identify tree of calls across services</minor>
+									</small>
+									<br>
+								</div>
+						</ul>
+						<small>
+							<sup class=superscript style="font-size: 50%">Ref: Adrian Cole
+							</sup>
+						</small>
+					</div>
+
+					<div style=" float: right; width: 40%; vertical-align: text-bottom;">
+						<p>
+							<img src="images/metrics-log-trace.png" style="background-color: #fff;">
+							<small>
+								<sup class=superscript style="font-size: 50%">Ref: <a
+										href="https://peter.bourgon.org/blog/2017/02/21/metrics-tracing-and-logging.html">Peter
+										Bourgon</a><br>
+								</sup>
+							</small>
+						</p>
+					</div>
+
+				</section>
+
+				<section>
+					<h3>Monitoring and Observability</h3>
+					<!--check http://slides.com/gsklee/functional-programming-in-5-minutes#/10-->
+					<div style="float: left; width: 50%; margin-top: 1em">
+						<p><small>
+								<font color="#fa0">Observability</font> is a noun, it's an attribute meaning the system
+								is emitting a signal.
+							</small></p>
+						<img src="images/dusan-smetana-8q-g0uY6jU8-unsplash.jpg" style="width: 60%;height: auto;">
+					</div>
+					<div style="float: right; width: 50%; margin-top: 1em">
+						<p><small>
+								<font color="#fa0">Monitoring</font> is a verb, it's an action taken from a human or a
+								machine based on an event.
+							</small></p>
+						<img src="images/rainer-bleek-3DnX8CUsYmw-unsplash.jpg" style="width: 60%;height: auto;">
+					</div>
+				</section>
+			</section>
+			<section>
+				<section data-background-color="rgba( 22, 152, 213, 0.6  )">
+					<h2 style="text-align: left;">Logs</h2>
+					<p>
+						<blockquote style="color:rgb(0, 247, 255); width: 95%">
+							An event log is an immutable, timestamped record of discrete events that happened over time.
+						</blockquote>
+						<small>
+							<sup class=superscript style="font-size: 50%">Ref: Cindy Sridharan<br>
+							</sup>
 						</small>
 					</p>
-				</div>
+					</section>
+					<section data-background="images/logs-wood.jpg" data-background-opacity="0.4">
+					<div style="float: left; width: 55%; margin-top: 1em">
+						<ul>
+							<li> Logs come in three different flavors: Plaintext, Structured (JSON format) or binary
+							<li> Trivial to generate								
+							<li> Provide rich context information
+							<li> Expensive to process, move, store and query
+							<li> They are noisy
+						</ul>
+						<small>
+							<sup class=superscript style="font-size: 50%">Ref: Adrian Cole
+							</sup>
+						</small>
+					</div>
+				</section>
+				<section>
+					<h3>Instrumentation</h3>
+					<pre style="width: 100%; line-height: 1.1em; font-size: 0.45em;">
+					<code  data-trim data-line-numbers="5,6,13,15" data-trim contenteditable>
+							import org.slf4j.Logger;
+							import org.slf4j.LoggerFactory;
+							import org.slf4j.LoggerFactory;
+							public class Wombat {
+							  final Logger logger = 
+							  LoggerFactory.getLogger(Wombat.class);
+							  Integer t;
+							  Integer oldT;
+							
+							  public void setTemperature(Integer temperature) {								
+							    oldT = t;        
+								t = temperature;							
+								logger.debug("Temperature set to {}", t, oldT);							
+								if(temperature.intValue() > 50) {
+								  logger.info("Temperature has risen above 50 degrees.");
+								 }
+							  }
+							}
+						</code>
+					</pre>
+				</section>
 
+				<section>
+					<h1>Presentation</h1>
+					<p>Screenshots</p>
+				</section>
 			</section>
 
 			<section>
-				<h1>Monitoring and Observability</h1>
-				<p>Moniroting is a verb and Observability is a noun</p>
-				<p>Picture of my mom vs picture of microscope</p>
+				<section data-background-color="rgba( 22, 152, 213, 0.6  )">
+					<h2 style="text-align: left;">Metrics</h2>
+					<p>
+							<blockquote style="width: 95%">
+									Metrics are a numeric representation of data measured over intervals of time. 
+									Metrics can harness the power of mathematical modeling and prediction to derive 
+									knowledge of the behavior of a system over intervals of time in the present and future.
+							</blockquote>
+							<small>
+								<sup class=superscript style="font-size: 50%">Ref: Cindy Sridharan<br>
+								</sup>
+							</small>
+						</p>
+				</section>
+				<section>
+					<h3>Metrics presentation and instrumentation</h3>
+					<p></p>
+				</section>
 			</section>
 
 			<section>
-				<h1>Logs</h1>
-				<p></p>
-			</section>
-
-			<section>
-				<h1>Metrics</h1>
-				<p></p>
-			</section>
-
-			<section>
-				<h1>Distributed Traces</h1>
-				<p></p>
-			</section>
-
-			<section>
-				<h1></h1>
-				<p></p>
+				<section data-background-color="rgba( 22, 152, 213, 0.6  )">
+						<h2 style="text-align: left;">Distributed Traces</h2>
+					<p>When it comes to distributed systems, in the absence of a distributed debugger,
+						observability data from the various components of the system is required to be able to
+						effectively debug such systems.</p>
+				</section>
+				<section>
+					<h3>Traces presentation and instrumentation</h3>
+					<p></p>
+				</section>
 			</section>
 
 			<section>
@@ -241,6 +306,75 @@
 					Donner une définition
 				</p>
 				<img width=392 height=400 src="/images/metrics-log-trace.png.">
+			</section>
+			<section>
+				<h2>15% of the world’s population experience some form of disability.</h2>
+				<small class="float-right">
+					<a href="http://www.worldbank.org/en/topic/disability" target="_blank" rel="noopener">The World
+						Bank</a>
+				</small>
+
+
+
+			</section>
+			<section data-background="#fff">
+				<h2 style="color: #979797">Color contrast</h2>
+				<p style="color: #979797">While grey on white is quite popular on the web, this text fails
+					even AA level.
+				</p>
+
+				<p class="float-left">
+					<img src="assets/contrast-chrome.png" width="232" height="310" alt="Contrast ratio rating">
+					<small style="display: block; text-align: left;">
+						<a href="https://developers.google.com/web/updates/2018/01/devtools#contrast" target="_blank"
+							rel="noopener">
+							→ Chrome 65+ </a>
+					</small>
+				</p>
+				<p class="float-right">
+					<img src="assets/contrast-ratio.png" width="482" height="136" alt="Contrast ratio rating">
+					<small style="display: block; text-align: right;">
+						<a href="http://leaverou.github.io/contrast-ratio/" target="_blank" rel="noopener">
+							→ Calculate Contrast Ratio
+						</a>
+					</small>
+				</p>
+
+
+
+			</section>
+			<section>
+				<h3>
+					Will they improve anytime soon?
+				</h3>
+
+				<div style="float: right; width: 35%">
+					<a href="">
+						<img src="images/radiotelemetry.jpg" />
+					</a>
+				</div>
+				<div style="width: 65%">
+					<ul>
+						<li> Not any money in it
+							<ul>
+								<li> ...with existing businessplans
+							</ul>
+						<li> Technical debt
+							<ul>
+								<li> Visualization is hard and messy
+								<li> Non-modularity <minor>bad design</minor>
+								<li> Locked into old design choices
+							</ul>
+						<li> Lack of vision
+							<div>
+								<small>
+									<minor>Nothing has changed for many years</minor>
+								</small>
+								<br>
+							</div>
+						<li> So... no
+					</ul>
+				</div>
 			</section>
 
 			<section>
@@ -496,11 +630,31 @@
 						page in the background.</p>
 				</div>
 			</section>
+			<section>
+				<h2>Pretty Code</h2>
+				<pre><code data-trim contenteditable>
+function linkify( selector ) {
+  if( supports3DTransforms ) {
+
+    var nodes = document.querySelectorAll( selector );
+
+    for( var i = 0, len = nodes.length; i &lt; len; i++ ) {
+      var node = nodes[i];
+
+      if( !node.className ) {
+        node.className += ' roll';
+      }
+    }
+  }
+}
+					</code></pre>
+				<p>Code syntax highlighting courtesy of <a
+						href="http://softwaremaniacs.org/soft/highlight/en/description/">highlight.js</a>.</p>
+			</section>
 
 			<section>
 				<h2>Pretty Code</h2>
 				<pre><code class="hljs" data-trim data-line-numbers="4,8-9">
-import React, { useState } from 'react';
 
 function Example() {
   const [count, setCount] = useState(0);
