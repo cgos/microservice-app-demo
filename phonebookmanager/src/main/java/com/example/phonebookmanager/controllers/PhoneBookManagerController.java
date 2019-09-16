@@ -26,6 +26,14 @@ public class PhoneBookManagerController {
     @Autowired
     private UserRepository userRepository;
 
+    private static void randomFailure(String source) throws InterruptedException {
+        // Random behavior to generate latency and errors
+        Thread.sleep(1 + (long) (Math.random() * 500));
+        if (Math.random() > 0.9) {
+//            throw new RuntimeException(source);
+        }
+    }
+
     @GetMapping()
     public Iterable<User> getUsers(@RequestHeader HttpHeaders headers) throws InterruptedException {
         // https://github.com/yurishkuro/opentracing-tutorial/tree/master/java/src/main/java/lesson02
@@ -33,14 +41,7 @@ public class PhoneBookManagerController {
         SpanContext parentSpanCtx = tracer.extract(Format.Builtin.HTTP_HEADERS, new TextMapExtractAdapter(headers.toSingleValueMap()));
         Span span = tracer.buildSpan("phone-book-manager-getUsers").asChildOf(parentSpanCtx).start();
         LOGGER.info("get users");
-
-        // Random behavior to generate latency and errors
-        Thread.sleep(1 + (long) (Math.random() * 500));
-        if (Math.random() > 0.8) {
-            LOGGER.info("Failed get users");
-            throw new RuntimeException("Failed getUsers");
-        }
-
+        randomFailure("getUsers");
         span.finish();
         return userRepository.findAll();
     }
@@ -50,13 +51,7 @@ public class PhoneBookManagerController {
         SpanContext parentSpanCtx = tracer.extract(Format.Builtin.HTTP_HEADERS, new TextMapExtractAdapter(headers.toSingleValueMap()));
         Span span = tracer.buildSpan("phone-book-manager-getUser").asChildOf(parentSpanCtx).start();
         LOGGER.info("get user with id: " + id);
-
-        // Random behavior to generate latency and errors
-        Thread.sleep(1 + (long) (Math.random() * 500));
-        if (Math.random() > 0.8) {
-            throw new RuntimeException("Failed getUser");
-        }
-
+        randomFailure("getUser");
         span.finish();
         return userRepository.findById(id).orElseThrow(UserNotFoundException::new);
     }
@@ -67,13 +62,7 @@ public class PhoneBookManagerController {
         SpanContext parentSpanCtx = tracer.extract(Format.Builtin.HTTP_HEADERS, new TextMapExtractAdapter(headers.toSingleValueMap()));
         Span span = tracer.buildSpan("phone-book-manager-addUser").asChildOf(parentSpanCtx).start();
         LOGGER.info("adding user: " + user.toString());
-
-        // Random behavior to generate latency and errors
-        Thread.sleep(1 + (long) (Math.random() * 500));
-        if (Math.random() > 0.8) {
-            throw new RuntimeException("Failed addUser");
-        }
-
+        randomFailure("addUser");
         span.finish();
         return userRepository.save(user);
     }
@@ -83,13 +72,7 @@ public class PhoneBookManagerController {
         SpanContext parentSpanCtx = tracer.extract(Format.Builtin.HTTP_HEADERS, new TextMapExtractAdapter(headers.toSingleValueMap()));
         Span span = tracer.buildSpan("phone-book-manager-updateUser").asChildOf(parentSpanCtx).start();
         LOGGER.info("update user: " + user.toString());
-
-        // Random behavior to generate latency and errors
-        Thread.sleep(1 + (long) (Math.random() * 500));
-        if (Math.random() > 0.8) {
-            throw new RuntimeException("Failed updateUser");
-        }
-
+        randomFailure("updateUser");
         userRepository.findById(id)
                 .orElseThrow(UserNotFoundException::new);
 
@@ -102,13 +85,7 @@ public class PhoneBookManagerController {
         SpanContext parentSpanCtx = tracer.extract(Format.Builtin.HTTP_HEADERS, new TextMapExtractAdapter(headers.toSingleValueMap()));
         Span span = tracer.buildSpan("phone-book-manager-deleteUser").asChildOf(parentSpanCtx).start();
         LOGGER.info("delete user: " + id);
-
-        // Random behavior to generate latency and errors
-        Thread.sleep(1 + (long) (Math.random() * 500));
-        if (Math.random() > 0.8) {
-            throw new RuntimeException("Failed getUsers");
-        }
-
+        randomFailure("delete");
         userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User not found"));
         userRepository.deleteById(id);
         span.finish();

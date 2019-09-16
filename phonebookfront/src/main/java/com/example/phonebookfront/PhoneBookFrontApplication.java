@@ -13,19 +13,23 @@ import org.springframework.context.annotation.Bean;
 @EnableFeignClients
 public class PhoneBookFrontApplication {
 
-	@Bean
-	public Tracer tracer() {
-		Configuration.SamplerConfiguration samplerConfiguration = Configuration.SamplerConfiguration.fromEnv()
-				.withType(ConstSampler.TYPE)
-				.withParam(1);
-		Configuration.ReporterConfiguration reporterConfiguration = Configuration.ReporterConfiguration.fromEnv().withLogSpans(true);
-		Configuration configuration = new Configuration("phone-book-frontend")
-				.withSampler(samplerConfiguration)
-				.withReporter(reporterConfiguration);
-		return configuration.getTracer();
-	}
+    @Bean
+    public Tracer tracer() {
+        Configuration.SamplerConfiguration samplerConfiguration = Configuration.SamplerConfiguration.fromEnv()
+                .withType(ConstSampler.TYPE)
+                .withParam(1);
 
-	public static void main(String[] args) {
-		SpringApplication.run(PhoneBookFrontApplication.class, args);
-	}
+        Configuration.ReporterConfiguration reporterConfiguration = Configuration.ReporterConfiguration.fromEnv().
+                withLogSpans(true);
+
+        Configuration configuration = new Configuration("phone-book-frontend")
+                .withSampler(samplerConfiguration)
+                .withReporter(reporterConfiguration);
+
+        return configuration.getTracer();
+    }
+
+    public static void main(String[] args) {
+        SpringApplication.run(PhoneBookFrontApplication.class, args);
+    }
 }

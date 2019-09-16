@@ -61,9 +61,31 @@ First you need to git clone this repository
 ## Tracing
 
 ### Java
+* Add ``` 		<dependency>
+			<groupId>io.jaegertracing</groupId>
+			<artifactId>jaeger-client</artifactId>
+			<version>0.32.0</version>
+		</dependency>```
+    ```<dependency>
+			<groupId>io.github.openfeign.opentracing</groupId>
+			<artifactId>feign-opentracing</artifactId>
+			<version>0.3.0</version>
+		</dependency>```
+* Enable logging for Jaeger: ```logging.level.io.jaegertracing=DEBUG```
 * Add opentracing-spring-cloud-starter dependency
 * Add jaeger-client dependency
-* Add bean tracer in the spring boot application
+* Add bean tracer in the spring boot application:
+``` 	@Bean
+	public Tracer tracer() {
+		Configuration.SamplerConfiguration samplerConfiguration = Configuration.SamplerConfiguration.fromEnv()
+				.withType(ConstSampler.TYPE)
+				.withParam(1);
+		Configuration.ReporterConfiguration reporterConfiguration = Configuration.ReporterConfiguration.fromEnv().withLogSpans(true);
+		Configuration configuration = new Configuration("phone-book-frontend")
+				.withSampler(samplerConfiguration)
+				.withReporter(reporterConfiguration);
+		return configuration.getTracer();
+	}```
 
 
 start Jaeger: docker run -p5775:5775/udp -p6831:6831/udp -p6832:6832/udp -p16686:16686 jaegertracing/all-in-one:latest --log-level=debug

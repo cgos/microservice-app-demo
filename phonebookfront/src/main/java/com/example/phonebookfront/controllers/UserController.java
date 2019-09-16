@@ -2,11 +2,15 @@ package com.example.phonebookfront.controllers;
 
 import com.example.phonebookfront.client.GatewayClient;
 import com.example.phonebookfront.model.User;
+import feign.Feign;
+import feign.Request;
+import feign.jackson.JacksonDecoder;
+import feign.jackson.JacksonEncoder;
+import feign.okhttp.OkHttpClient;
+import feign.opentracing.TracingClient;
+import io.opentracing.Scope;
 import io.opentracing.Span;
-import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
-import io.opentracing.propagation.Format;
-import io.opentracing.propagation.TextMapExtractAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,18 +35,19 @@ public class UserController {
     @Autowired
     GatewayClient gatewayClient;
 
-    @GetMapping("/")
-    public String index(@RequestHeader HttpHeaders headers, Model model) throws InterruptedException {
-        SpanContext parentSpanCtx = tracer.extract(Format.Builtin.HTTP_HEADERS, new TextMapExtractAdapter(headers.toSingleValueMap()));
-        Span span = tracer.buildSpan("phone-book-frontend-getUsers").asChildOf(parentSpanCtx).start();
-        LOGGER.info("index");
-
+    private static void randomFailure(String source) throws InterruptedException {
         // Random behavior to generate latency and errors
         Thread.sleep(1 + (long) (Math.random() * 500));
         if (Math.random() > 0.9) {
-            throw new RuntimeException("Failed index");
+//            throw new RuntimeException(source);
         }
+    }
 
+    @GetMapping("/")
+    public String index(@RequestHeader HttpHeaders headers, Model model) throws InterruptedException {
+        Span span = tracer.buildSpan("index").start();
+        LOGGER.info("index");
+        randomFailure("index");
         model.addAttribute("users", gatewayClient.getUsers());
         span.finish();
         return "index";
@@ -50,72 +55,42 @@ public class UserController {
 
     @GetMapping("/signup")
     public String showSignUpForm(@RequestHeader HttpHeaders headers, User user) throws InterruptedException {
-        SpanContext parentSpanCtx = tracer.extract(Format.Builtin.HTTP_HEADERS, new TextMapExtractAdapter(headers.toSingleValueMap()));
-        Span span = tracer.buildSpan("phone-book-frontend-getUsers").asChildOf(parentSpanCtx).start();
+
         LOGGER.info("showSignupForm");
 
-        // Random behavior to generate latency and errors
-        Thread.sleep(1 + (long) (Math.random() * 500));
-        if (Math.random() > 0.9) {
-            throw new RuntimeException("Failed signup");
-        }
-
-        span.finish();
+        randomFailure("signup");
         return "add-user";
     }
 
     @PostMapping
     public String addUser(@RequestHeader HttpHeaders headers, @Valid User user, BindingResult result, Model model) throws InterruptedException {
-        SpanContext parentSpanCtx = tracer.extract(Format.Builtin.HTTP_HEADERS, new TextMapExtractAdapter(headers.toSingleValueMap()));
-        Span span = tracer.buildSpan("phone-book-frontend-addUser").asChildOf(parentSpanCtx).start();
+
         LOGGER.info("addUser " + user.toString());
-
-        // Random behavior to generate latency and errors
-        Thread.sleep(1 + (long) (Math.random() * 500));
-        if (Math.random() > 0.9) {
-            throw new RuntimeException("Failed addUser");
-        }
-
+        randomFailure("addUser");
         if (result.hasErrors()) {
             return "add-user";
         }
 
         gatewayClient.create(user);
         model.addAttribute("users", gatewayClient.getUsers());
-        span.finish();
         return "index";
     }
 
     @GetMapping("/edit/{id}")
     public String showUpdateForm(@RequestHeader HttpHeaders headers, @PathVariable("id") String id, Model model) throws InterruptedException {
-        SpanContext parentSpanCtx = tracer.extract(Format.Builtin.HTTP_HEADERS, new TextMapExtractAdapter(headers.toSingleValueMap()));
-        Span span = tracer.buildSpan("phone-book-frontend-getUsers").asChildOf(parentSpanCtx).start();
+
         LOGGER.info("showUpdateForm: " + id);
-
-        // Random behavior to generate latency and errors
-        Thread.sleep(1 + (long) (Math.random() * 500));
-        if (Math.random() > 0.9) {
-            throw new RuntimeException("Failed showUpdateForm");
-        }
-
+        randomFailure("edit");
         User user = gatewayClient.getUser(id);
         model.addAttribute("user", user);
-        span.finish();
         return "update-user";
     }
 
     @PostMapping("/update/{id}")
     public String updateUser(@RequestHeader HttpHeaders headers, @PathVariable("id") String id, @Valid User user, BindingResult result, Model model) throws InterruptedException {
-        SpanContext parentSpanCtx = tracer.extract(Format.Builtin.HTTP_HEADERS, new TextMapExtractAdapter(headers.toSingleValueMap()));
-        Span span = tracer.buildSpan("phone-book-frontend-getUsers").asChildOf(parentSpanCtx).start();
+
         LOGGER.info("updateUser: " + id);
-
-        // Random behavior to generate latency and errors
-        Thread.sleep(1 + (long) (Math.random() * 500));
-        if (Math.random() > 0.9) {
-            throw new RuntimeException("Failed updateUser");
-        }
-
+        randomFailure("update");
         if (result.hasErrors()) {
             user.setId(id);
             return "update-user";
@@ -123,25 +98,16 @@ public class UserController {
 
         gatewayClient.update(id, user);
         model.addAttribute("users", gatewayClient.getUsers());
-        span.finish();
         return "index";
     }
 
     @GetMapping("/delete/{id}")
     public String deleteUser(@RequestHeader HttpHeaders headers, @PathVariable("id") String id, Model model) throws InterruptedException {
-        SpanContext parentSpanCtx = tracer.extract(Format.Builtin.HTTP_HEADERS, new TextMapExtractAdapter(headers.toSingleValueMap()));
-        Span span = tracer.buildSpan("phone-book-frontend-getUsers").asChildOf(parentSpanCtx).start();
+
         LOGGER.info("deleteUser: " + id);
-
-        // Random behavior to generate latency and errors
-        Thread.sleep(1 + (long) (Math.random() * 500));
-        if (Math.random() > 0.9) {
-            throw new RuntimeException("Failed deleteUser");
-        }
-
+        randomFailure("delete");
         gatewayClient.deleteUser(id);
         model.addAttribute("users", gatewayClient.getUsers());
-        span.finish();
         return "index";
     }
 }
