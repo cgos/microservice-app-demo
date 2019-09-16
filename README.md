@@ -1,4 +1,12 @@
-# Phone Book Microservice demo applications
+# Phone Book Microservice Metrics and OpenTracing demo application
+
+Welcome, this application is a basic walkthough for how to instruments metrics and traces in a Java code base application.
+
+There are four main git branches:
+* master: contains everything
+* base: the basic java application without metrics and tracing
+* metric
+* tracing
 
 This simple project contains 4 main components:
 - Frontend
@@ -48,3 +56,37 @@ First you need to git clone this repository
 ## Start locust
 * locust -f ./locustfile.py --no-web -c 4 -r 1
 * http://localhost:8089/
+
+
+## Tracing
+
+### Java
+* Add ``` 		<dependency>
+			<groupId>io.jaegertracing</groupId>
+			<artifactId>jaeger-client</artifactId>
+			<version>0.32.0</version>
+		</dependency>```
+    ```<dependency>
+			<groupId>io.github.openfeign.opentracing</groupId>
+			<artifactId>feign-opentracing</artifactId>
+			<version>0.3.0</version>
+		</dependency>```
+* Enable logging for Jaeger: ```logging.level.io.jaegertracing=DEBUG```
+* Add opentracing-spring-cloud-starter dependency
+* Add jaeger-client dependency
+* Add bean tracer in the spring boot application:
+``` 	@Bean
+	public Tracer tracer() {
+		Configuration.SamplerConfiguration samplerConfiguration = Configuration.SamplerConfiguration.fromEnv()
+				.withType(ConstSampler.TYPE)
+				.withParam(1);
+		Configuration.ReporterConfiguration reporterConfiguration = Configuration.ReporterConfiguration.fromEnv().withLogSpans(true);
+		Configuration configuration = new Configuration("phone-book-frontend")
+				.withSampler(samplerConfiguration)
+				.withReporter(reporterConfiguration);
+		return configuration.getTracer();
+	}```
+
+
+start Jaeger: docker run -p5775:5775/udp -p6831:6831/udp -p6832:6832/udp -p16686:16686 jaegertracing/all-in-one:latest --log-level=debug
+goto: http://localhost:16686
