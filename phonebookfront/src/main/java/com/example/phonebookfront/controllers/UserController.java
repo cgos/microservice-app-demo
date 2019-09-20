@@ -2,15 +2,10 @@ package com.example.phonebookfront.controllers;
 
 import com.example.phonebookfront.client.GatewayClient;
 import com.example.phonebookfront.model.User;
-import feign.Feign;
-import feign.Request;
-import feign.jackson.JacksonDecoder;
-import feign.jackson.JacksonEncoder;
-import feign.okhttp.OkHttpClient;
-import feign.opentracing.TracingClient;
-import io.opentracing.Scope;
 import io.opentracing.Span;
+import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
+import io.opentracing.propagation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +19,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 
 import javax.validation.Valid;
+import java.util.Map;
 
 @Controller
 public class UserController {
@@ -45,11 +41,24 @@ public class UserController {
 
     @GetMapping("/")
     public String index(@RequestHeader HttpHeaders headers, Model model) throws InterruptedException {
-        Span span = tracer.buildSpan("index").start();
+        Map<String, String> headersMap = headers.toSingleValueMap();
+        TextMap textMapAdapter = new TextMapAdapter(headersMap);
+        SpanContext parentSpanCtx = tracer.extract(Format.Builtin.HTTP_HEADERS, textMapAdapter);
+
+
+        Tracer.SpanBuilder spanBuilder;
+        if(parentSpanCtx ==  null) {
+            spanBuilder = tracer.buildSpan("index");
+        } else {
+            spanBuilder = tracer.buildSpan("index").asChildOf(parentSpanCtx);
+        }
+
+        Span span = spanBuilder.start();
+
         LOGGER.info("index");
         randomFailure("index");
         model.addAttribute("users", gatewayClient.getUsers());
-        span.finish();
+
         return "index";
     }
 
