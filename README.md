@@ -41,7 +41,7 @@ First you need to git clone this repository
 ## Prometheus
 * Install prometheus: https://prometheus.io/docs/prometheus/latest/installation/
 * Create prometheus config file: fix targets IP addresses
-* Start Prometheus ```docker run -d --name=prometheus -p 9090:9090 -v /Users/gosselinchristian/Sandboxes/cgos/microservice-app-demo/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus --config.file=/etc/prometheus/prometheus.yml```
+* Start Prometheus ```docker run -d --name=prometheus -p 9090:9090 -v /Users/gosselinchristian/Sandboxes/cgos/observability-app-demo/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus --config.file=/etc/prometheus/prometheus.yml```
 * Show request per second metrics
 
 ## Grafana
