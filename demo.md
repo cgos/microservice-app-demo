@@ -19,7 +19,8 @@
 ## Metric
 * Actuator
 * http://localhost:8083/actuator/
-* Add micrometer and actuator dependencies:```xml
+* Add micrometer and actuator dependencies:
+```xml
         <dependency>
 			<groupId>io.micrometer</groupId>
 			<artifactId>micrometer-registry-prometheus</artifactId>
@@ -27,7 +28,8 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
-		</dependency>```
+		</dependency>
+```
 * Activate actuator web endpoint in application.properties: ``` management.endpoints.web.exposure.include=*
 spring.jackson.serialization.indent_output=true```
 * 
