@@ -19,7 +19,7 @@
 ## Metric
 * Actuator
 * http://localhost:8083/actuator/
-* Add micrometer and actuator dependencies:```
+* Add micrometer and actuator dependencies:```xml
         <dependency>
 			<groupId>io.micrometer</groupId>
 			<artifactId>micrometer-registry-prometheus</artifactId>
