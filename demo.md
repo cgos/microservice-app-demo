@@ -30,14 +30,19 @@
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
 ```
-* Activate actuator web endpoint in application.properties: ``` management.endpoints.web.exposure.include=*
-spring.jackson.serialization.indent_output=true```
-* 
-* Run locust
+* Activate actuator web endpoint in application.properties: 
+``` 
+management.endpoints.web.exposure.include=*
+spring.jackson.serialization.indent_output=true
+``` 
+* Run locust: 
+```
+locust -f ./locustfile.py --no-web -c 4 -r 1
+```
 * Show metric in actuator: http://localhost:8080/actuator/prometheus
 * Show metric in prometheus: 
 * Show metric in grafana and add this basic query: http_server_requests_seconds_count
-* In grafana add the json spring-boot dashboard
+* In grafana add the json spring-boot dashboard: see frontend
 
 ## Traces
 
