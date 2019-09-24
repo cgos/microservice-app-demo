@@ -41,6 +41,8 @@ public class PhoneBookManagerController {
         SpanContext parentSpanCtx = tracer.extract(Format.Builtin.HTTP_HEADERS, new TextMapExtractAdapter(headers.toSingleValueMap()));
         Span span = tracer.buildSpan("phone-book-manager-getUsers").asChildOf(parentSpanCtx).start();
 
+        LOGGER.info(headers.toString());
+
         try {
             LOGGER.info("get users");
             randomFailure("getUsers", span);

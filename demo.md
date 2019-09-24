@@ -1,4 +1,4 @@
-## Grafana
+# Grafana
 * Start Grafana ```docker run -d --name=grafana -p 3000:3000 grafana/grafana```
 * http://localhost:3000
 * Add Data Source with the local real IP e.g.: ```http://192.168.1.138:9090```
@@ -8,18 +8,18 @@
 * Gateway port 8080
 * Front port 8082
 * Backend port 8083
+* Show the application: http://localhost:8082/
 
 # Start Prometheus
-* Prometheus: already installed
-* Go to: http://localhost:9090/graph
 
-## Logs
+# Logs
 * skip
 
-## Metric
-* Actuator
-* http://localhost:8083/actuator/
-* Add micrometer and actuator dependencies:
+# Metric
+* Configure prometheus.yml
+* Go to: http://localhost:9090/graph
+* Actuator (not running) http://localhost:8083/actuator/
+* Add micrometer and actuator dependencies (micrometer is a wrapper around metric systems):
 ```xml
         <dependency>
 			<groupId>io.micrometer</groupId>
@@ -35,6 +35,7 @@
 management.endpoints.web.exposure.include=*
 spring.jackson.serialization.indent_output=true
 ``` 
+* Show metric in actuator: http://localhost:8080/actuator/prometheus
 * Run locust: 
 ```
 locust -f ./locustfile.py --no-web -c 4 -r 1
@@ -44,10 +45,13 @@ locust -f ./locustfile.py --no-web -c 4 -r 1
 * Show metric in grafana and add this basic query: http_server_requests_seconds_count
 * In grafana add the json spring-boot dashboard: see frontend
 
-## Traces
-
-
-# Start Jaeger
-* Jaeger: already installed
+# Traces
+* show pom.xml
+* show Tracer, Span and SpanContext
+## Agent / Sidecar / Framework
+* start Jaeger: ```docker run -p5775:5775/udp -p6831:6831/udp -p6832:6832/udp -p16686:16686 jaegertracing/all-in-one:latest --log-level=debug```
 * goto: http://localhost:16686
-
+* Run one query: http://localhost:8082/
+* Grab trace id from logs and search in Jaeger
+* Enable random failures
+* Run Locust, show latency

@@ -2,11 +2,9 @@
 
 Welcome, this application is a basic walkthough for how to instruments metrics and traces in a Java code base application.
 
-There are four main git branches:
-* master: contains everything
+There are 2 main git branches:
+* master: contains metrics and tracing
 * base: the basic java application without metrics and tracing
-* metric
-* tracing
 
 This simple project contains 4 main components:
 - Frontend
