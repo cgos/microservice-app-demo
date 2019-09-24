@@ -3,6 +3,13 @@
 * Front port 8082
 * Backend port 8083
 
+## Logs
+* skip
+
+## Metric
+* Actuator
+
+## Traces
 
 # Start Prometheus
 * Prometheus: already installed
@@ -11,3 +18,4 @@
 # Start Jaeger
 * Jaeger: already installed
 * goto: http://localhost:16686
+

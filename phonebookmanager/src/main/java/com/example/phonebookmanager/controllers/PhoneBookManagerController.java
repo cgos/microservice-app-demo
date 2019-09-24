@@ -21,39 +21,47 @@ public class PhoneBookManagerController {
     private static final Logger LOGGER = LoggerFactory.getLogger(PhoneBookManagerController.class);
 
     @Autowired
-    private Tracer tracer;
+    protected Tracer tracer;
 
     @Autowired
     private UserRepository userRepository;
 
-    private static void randomFailure(String source) throws InterruptedException {
+    private static void randomFailure(String source, Span span) throws InterruptedException {
         // Random behavior to generate latency and errors
         Thread.sleep(1 + (long) (Math.random() * 500));
         if (Math.random() > 0.9) {
-//            throw new RuntimeException(source);
+            RuntimeException rte = new RuntimeException(source);
+            span.log("randomFailure" + rte.toString());
+            throw rte;
         }
     }
 
     @GetMapping()
     public Iterable<User> getUsers(@RequestHeader HttpHeaders headers) throws InterruptedException {
-        // https://github.com/yurishkuro/opentracing-tutorial/tree/master/java/src/main/java/lesson02
-        // https://github.com/yurishkuro/opentracing-tutorial/blob/fcf83f0d290a7ef6f8c0d2401d621a00f16b19c9/java/src/main/java/lib/Tracing.java
         SpanContext parentSpanCtx = tracer.extract(Format.Builtin.HTTP_HEADERS, new TextMapExtractAdapter(headers.toSingleValueMap()));
         Span span = tracer.buildSpan("phone-book-manager-getUsers").asChildOf(parentSpanCtx).start();
-        LOGGER.info("get users");
-        randomFailure("getUsers");
-        span.finish();
-        return userRepository.findAll();
+
+        try {
+            LOGGER.info("get users");
+            randomFailure("getUsers", span);
+            return userRepository.findAll();
+        } finally {
+            span.finish();
+        }
     }
 
     @GetMapping("/{id}")
     public User getUser(@RequestHeader HttpHeaders headers, @PathVariable("id") String id) throws InterruptedException {
         SpanContext parentSpanCtx = tracer.extract(Format.Builtin.HTTP_HEADERS, new TextMapExtractAdapter(headers.toSingleValueMap()));
         Span span = tracer.buildSpan("phone-book-manager-getUser").asChildOf(parentSpanCtx).start();
-        LOGGER.info("get user with id: " + id);
-        randomFailure("getUser");
-        span.finish();
-        return userRepository.findById(id).orElseThrow(UserNotFoundException::new);
+        try {
+            LOGGER.info("get user with id: " + id);
+            randomFailure("getUser", span);
+
+            return userRepository.findById(id).orElseThrow(UserNotFoundException::new);
+        } finally {
+            span.finish();
+        }
     }
 
     @PostMapping
@@ -61,10 +69,13 @@ public class PhoneBookManagerController {
     public User addUser(@RequestHeader HttpHeaders headers, @RequestBody User user) throws InterruptedException {
         SpanContext parentSpanCtx = tracer.extract(Format.Builtin.HTTP_HEADERS, new TextMapExtractAdapter(headers.toSingleValueMap()));
         Span span = tracer.buildSpan("phone-book-manager-addUser").asChildOf(parentSpanCtx).start();
-        LOGGER.info("adding user: " + user.toString());
-        randomFailure("addUser");
-        span.finish();
-        return userRepository.save(user);
+        try {
+            LOGGER.info("adding user: " + user.toString());
+            randomFailure("addUser", span);
+            return userRepository.save(user);
+        } finally {
+            span.finish();
+        }
     }
 
     @PutMapping("/{id}")
@@ -72,7 +83,7 @@ public class PhoneBookManagerController {
         SpanContext parentSpanCtx = tracer.extract(Format.Builtin.HTTP_HEADERS, new TextMapExtractAdapter(headers.toSingleValueMap()));
         Span span = tracer.buildSpan("phone-book-manager-updateUser").asChildOf(parentSpanCtx).start();
         LOGGER.info("update user: " + user.toString());
-        randomFailure("updateUser");
+        randomFailure("updateUser", span);
         userRepository.findById(id)
                 .orElseThrow(UserNotFoundException::new);
 
@@ -85,7 +96,7 @@ public class PhoneBookManagerController {
         SpanContext parentSpanCtx = tracer.extract(Format.Builtin.HTTP_HEADERS, new TextMapExtractAdapter(headers.toSingleValueMap()));
         Span span = tracer.buildSpan("phone-book-manager-deleteUser").asChildOf(parentSpanCtx).start();
         LOGGER.info("delete user: " + id);
-        randomFailure("delete");
+        randomFailure("delete", span);
         userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User not found"));
         userRepository.deleteById(id);
         span.finish();
