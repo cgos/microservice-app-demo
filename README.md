@@ -31,18 +31,25 @@ First you need to git clone this repository
 
 # Option 1: Run locally
 
+## Prometheus
+* Install prometheus: https://prometheus.io/docs/prometheus/latest/installation/
+* Create prometheus config file: fix targets IP addresses
+* Start Prometheus ```docker run -p 9090:9090 -v /Users/gosselinchristian/Sandboxes/cgos/observability-app-demo/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus --config.file=/etc/prometheus/prometheus.yml --log.level=debug```
+* Go to: http://localhost:9090/graph
+* Show request per second metrics
+
+## Jaeger
+* start Jaeger: ```docker run -p5775:5775/udp -p6831:6831/udp -p6832:6832/udp -p16686:16686 jaegertracing/all-in-one:latest --log-level=debug```
+* goto: http://localhost:16686
 
 
+## Demo
 * Add micrometer dependency (sur 2/3 projets)
 * Add: management.endpoints.web.exposure.include=* (sur 1/3 projet)
 * Show: http://localhost:8083/actuator/prometheus
 * jmx exporter vs micrometer: https://github.com/prometheus/jmx_exporter
 
-## Prometheus
-* Install prometheus: https://prometheus.io/docs/prometheus/latest/installation/
-* Create prometheus config file: fix targets IP addresses
-* Start Prometheus ```docker run -d --name=prometheus -p 9090:9090 -v /Users/gosselinchristian/Sandboxes/cgos/observability-app-demo/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus --config.file=/etc/prometheus/prometheus.yml```
-* Show request per second metrics
+
 
 ## Grafana
 * Start Grafana ```docker run -d --name=grafana -p 3000:3000 grafana/grafana```
@@ -88,5 +95,7 @@ First you need to git clone this repository
 	}```
 
 
-start Jaeger: docker run -p5775:5775/udp -p6831:6831/udp -p6832:6832/udp -p16686:16686 jaegertracing/all-in-one:latest --log-level=debug
-goto: http://localhost:16686
+
+
+# Option 2: Run in Kubernetes
+Not yet
