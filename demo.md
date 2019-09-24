@@ -8,6 +8,9 @@
 
 ## Metric
 * Actuator
+* http://localhost:8083/actuator/
+* add in application.properties: ``` management.endpoints.web.exposure.include=*
+spring.jackson.serialization.indent_output=true```
 
 ## Traces
 
