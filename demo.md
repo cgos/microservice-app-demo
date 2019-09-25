@@ -69,4 +69,5 @@ locust -f ./locustfile.py --no-web -c 4 -r 1
 * Grab trace id from logs and search in Jaeger
 * Enable random failures and attach logs
 * Run Locust, show latency
-* Show trace error with log attached
+* Show trace error with log attached: http.status_code=500
+
