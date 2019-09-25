@@ -1,5 +1,6 @@
 # Preparation
 * All code and presentation on github account
+* skip log and kubernetes
 * Quickly show the application
 
 
@@ -17,8 +18,6 @@
 
 # Start Prometheus
 
-# Logs
-* skip
 
 # Metric
 * Configure prometheus.yml
