@@ -1,13 +1,20 @@
+
 # Preparation
+* Configure prometheus.yml
+* Start Grafana
 * All code and presentation on github account
 * skip log and kubernetes
-* Quickly show the application
+* Quickly show the Phone Book application
+- Gateway
+- Front end
+- Backend + BD
+- Load testing Locust
 
 
 # Grafana
 * Start Grafana ```docker run -d --name=grafana -p 3000:3000 grafana/grafana```
 * http://localhost:3000
-* Add Data Source with the local real IP e.g.: ```http://192.168.1.138:9090```
+* Add Data Source with the local real IP e.g.: ```http://10.235.57.161:9090```
 * Go to Dashboard, import
 
 # Start the services
@@ -21,7 +28,7 @@
 
 # Metric
 * Configure prometheus.yml
-* Go to: http://localhost:9090/graph
+* Go to Prometheus: http://localhost:9090/graph
 * Actuator (not running) http://localhost:8083/actuator/
 * Add micrometer and actuator dependencies (micrometer is a wrapper around metric systems):
 ```xml
@@ -39,7 +46,9 @@
 management.endpoints.web.exposure.include=*
 spring.jackson.serialization.indent_output=true
 ``` 
-* Show metric in actuator: http://localhost:8080/actuator/prometheus
+* Show metrics: http://localhost:8082/actuator
+* Show more metrics: http://localhost:8082/actuator/loggers
+* Show metric prometheus in actuator: http://localhost:8080/actuator/prometheus
 * Run locust: 
 ```
 locust -f ./locustfile.py --no-web -c 4 -r 1
@@ -48,7 +57,7 @@ locust -f ./locustfile.py --no-web -c 4 -r 1
 * Show metric in prometheus: http://localhost:9090/graph
 * Show metric in grafana: http://localhost:3000 
 * and add this basic query: http_server_requests_seconds_count
-* In grafana add the json spring-boot dashboard: see frontend
+* grafana: show basic spring boot actuator metrics
 
 # Traces
 * show pom.xml

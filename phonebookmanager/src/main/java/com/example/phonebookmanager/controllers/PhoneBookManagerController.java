@@ -30,9 +30,9 @@ public class PhoneBookManagerController {
         // Random behavior to generate latency and errors
         Thread.sleep(1 + (long) (Math.random() * 500));
         if (Math.random() > 0.9) {
-            RuntimeException rte = new RuntimeException(source);
-            span.log("randomFailure" + rte.toString());
-            throw rte;
+//            RuntimeException rte = new RuntimeException(source);
+//            span.log("randomFailure" + rte.toString());
+//            throw rte;
         }
     }
 
@@ -40,8 +40,6 @@ public class PhoneBookManagerController {
     public Iterable<User> getUsers(@RequestHeader HttpHeaders headers) throws InterruptedException {
         SpanContext parentSpanCtx = tracer.extract(Format.Builtin.HTTP_HEADERS, new TextMapExtractAdapter(headers.toSingleValueMap()));
         Span span = tracer.buildSpan("phone-book-manager-getUsers").asChildOf(parentSpanCtx).start();
-
-        LOGGER.info(headers.toString());
 
         try {
             LOGGER.info("get users");
