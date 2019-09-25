@@ -1,3 +1,8 @@
+# Preparation
+* All code and presentation on github account
+* Quickly show the application
+
+
 # Grafana
 * Start Grafana ```docker run -d --name=grafana -p 3000:3000 grafana/grafana```
 * http://localhost:3000
@@ -41,8 +46,9 @@ spring.jackson.serialization.indent_output=true
 locust -f ./locustfile.py --no-web -c 4 -r 1
 ```
 * Show metric in actuator: http://localhost:8080/actuator/prometheus
-* Show metric in prometheus: 
-* Show metric in grafana and add this basic query: http_server_requests_seconds_count
+* Show metric in prometheus: http://localhost:9090/graph
+* Show metric in grafana: http://localhost:3000 
+* and add this basic query: http_server_requests_seconds_count
 * In grafana add the json spring-boot dashboard: see frontend
 
 # Traces
@@ -53,5 +59,6 @@ locust -f ./locustfile.py --no-web -c 4 -r 1
 * goto: http://localhost:16686
 * Run one query: http://localhost:8082/
 * Grab trace id from logs and search in Jaeger
-* Enable random failures
+* Enable random failures and attach logs
 * Run Locust, show latency
+* Show trace error with log attached
