@@ -14,7 +14,7 @@
 # Grafana
 * Start Grafana ```docker run -d --name=grafana -p 3000:3000 grafana/grafana```
 * http://localhost:3000
-* Add Data Source with the local real IP e.g.: ```http://10.235.57.161:9090```
+* Add Data Source with the local real IP e.g.: ```http://10.62.26.21:9090```
 * Go to Dashboard, import
 
 # Start the services

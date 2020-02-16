@@ -30,9 +30,9 @@ public class PhoneBookManagerController {
         // Random behavior to generate latency and errors
         Thread.sleep(1 + (long) (Math.random() * 500));
         if (Math.random() > 0.9) {
-//            RuntimeException rte = new RuntimeException(source);
-//            span.log("randomFailure" + rte.toString());
-//            throw rte;
+            RuntimeException rte = new RuntimeException(source);
+            span.log("randomFailure" + rte.toString());
+            throw rte;
         }
     }
 
